@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>jubeat 模拟器 - 曲目选择</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .search-box {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            outline: none;
+            transition: box-shadow 0.3s;
+        }
+        
+        .search-input:focus {
+            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+        }
+        
+        .search-input::placeholder {
+            color: #999;
+        }
+        
+        .songs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            align-items: stretch;
+        }
+        
+        .song-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: row;
+            height: 200px;
+        }
+        
+        .song-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+        
+        .song-card.selected {
+            border: 4px solid #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+        
+        .song-image {
+            width: 200px;
+            height: 100%;
+            aspect-ratio: auto;
+            object-fit: cover;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            overflow: hidden;
+            flex-shrink: 0;
+            position: relative;
+        }
+        
+        .song-bpm-overlay {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.9em;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px;
+        }
+        
+        .song-info {
+            padding: 15px 20px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: auto;
+        }
+        
+        .song-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.4;
+            max-height: 2.8em;
+        }
+        
+        .song-artist {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+        
+        .song-bpm {
+            display: none;
+        }
+        
+        .difficulty-selector {
+            display: flex;
+            gap: 8px;
+            margin-top: auto;
+            padding-top: 10px;
+        }
+        
+        .diff-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            color: #666;
+        }
+        
+        .diff-btn:hover {
+            background: #f0f0f0;
+        }
+        
+        .diff-btn.selected {
+            color: white;
+        }
+        
+        .diff-btn.basic {
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
+        
+        .diff-btn.basic.selected {
+            background: #4CAF50;
+        }
+        
+        .diff-btn.advanced {
+            border-color: #2196F3;
+            color: #2196F3;
+        }
+        
+        .diff-btn.advanced.selected {
+            background: #2196F3;
+        }
+        
+        .diff-btn.extreme {
+            border-color: #f44336;
+            color: #f44336;
+        }
+        
+        .diff-btn.extreme.selected {
+            background: #f44336;
+        }
+        
+        .start-btn {
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2em;
+            padding: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>JSBeat</h1>
+        
+        <div class="search-box">
+            <input type="text" id="searchInput" class="search-input" placeholder="搜索曲目名称、作曲家...">
+        </div>
+        
+        <div id="loading" class="loading">加载中...</div>
+        
+        <div id="songsContainer" class="songs-grid" style="display: none;"></div>
+        
+        <button id="startBtn" class="start-btn" disabled>开始游戏</button>
+    </div>
+    
+    <script>
+        let songs = [];
+        let selectedSong = null;
+        let selectedDifficulty = null;
+        
+        // 难度对应的谱面文件
+        const difficultyFiles = {
+            'basic': 'pt_bsc.jmt',
+            'advanced': 'pt_adv.jmt',
+            'extreme': 'pt_ext.jmt'
+        };
+        
+        // 加载所有曲目
+        async function loadSongs() {
+            try {
+                let songList = [];
+                
+                // 尝试从配置文件加载
+                try {
+                    const response = await fetch('./songs/songs.json');
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.songs && Array.isArray(data.songs)) {
+                            songList = data.songs;
+                            console.log('从配置文件加载曲目列表');
+                        }
+                    }
+                } catch (error) {
+                    console.log('无法加载配置文件，使用预定义列表');
+                }
+                
+                // 如果配置文件加载失败，使用预定义列表
+                if (songList.length === 0) {
+                    songList = [
+                        { id: 'Evans' },
+                        { id: 'flower' }
+                    ];
+                    console.log('使用预定义曲目列表');
+                }
+                
+                console.log('发现的曲目:', songList.map(s => s.id));
+                
+                // 加载每个曲目的详细信息
+                songs = await Promise.all(songList.map(async (songInfo) => {
+                    const dir = songInfo.id;
+                    try {
+                        // 如果配置文件中已有完整信息，直接使用
+                        if (songInfo.name && songInfo.artist) {
+                            return {
+                                id: dir,
+                                path: `./songs/${dir}`,
+                                name: songInfo.name,
+                                artist: songInfo.artist,
+                                bpm: songInfo.bpm,
+                                levels: songInfo.levels,
+                                from: songInfo.from
+                            };
+                        }
+                        
+                        // 否则从 manifest.txt 读取
+                        const response = await fetch(`./songs/${dir}/manifest.txt`);
+                        if (!response.ok) {
+                            console.warn(`${dir} 的 manifest.txt 不存在`);
+                            return null;
+                        }
+                        
+                        const text = await response.text();
+                        const manifest = parseManifest(text);
+                        
+                        return {
+                            id: dir,
+                            path: `./songs/${dir}`,
+                            ...manifest
+                        };
+                    } catch (error) {
+                        console.error(`加载 ${dir} 失败:`, error);
+                        return null;
+                    }
+                }));
+                
+                songs = songs.filter(s => s !== null);
+                
+                if (songs.length === 0) {
+                    document.getElementById('loading').textContent = '未找到任何曲目，请检查songs目录';
+                } else {
+                    displaySongs();
+                }
+                
+            } catch (error) {
+                console.error('加载曲目失败:', error);
+                document.getElementById('loading').textContent = '加载失败，请检查文件结构';
+            }
+        }
+        
+        // 解析manifest文件
+        function parseManifest(text) {
+            const lines = text.split('\n');
+            const manifest = {};
+            
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('Name=')) {
+                    manifest.name = trimmed.substring(5);
+                } else if (trimmed.startsWith('Composer=')) {
+                    manifest.artist = trimmed.substring(9);
+                } else if (trimmed.startsWith('BPM=')) {
+                    manifest.bpm = trimmed.substring(4);
+                } else if (trimmed.startsWith('Level=')) {
+                    const levels = trimmed.substring(6).split(',');
+                    manifest.levels = levels.map(l => parseInt(l.trim()));
+                }
+            }
+            
+            return manifest;
+        }
+        
+        // 显示曲目列表
+        function displaySongs(filterText = '') {
+            const container = document.getElementById('songsContainer');
+            const loading = document.getElementById('loading');
+            
+            container.innerHTML = '';
+            
+            const filteredSongs = songs.filter(song => {
+                if (!filterText) return true;
+                const searchLower = filterText.toLowerCase();
+                return song.name.toLowerCase().includes(searchLower) ||
+                       song.artist.toLowerCase().includes(searchLower);
+            });
+            
+            if (filteredSongs.length === 0) {
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: white; font-size: 1.2em; padding: 50px;">未找到匹配的曲目</div>';
+            } else {
+                filteredSongs.forEach((song, index) => {
+                    const originalIndex = songs.indexOf(song);
+                    const card = createSongCard(song, originalIndex);
+                    container.appendChild(card);
+                });
+            }
+            
+            loading.style.display = 'none';
+            container.style.display = 'grid';
+        }
+        
+        // 搜索功能
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            displaySongs(e.target.value);
+        });
+        
+        // 创建曲目卡片
+        function createSongCard(song, index) {
+            const card = document.createElement('div');
+            card.className = 'song-card';
+            card.dataset.index = index;
+            
+            // 曲目图片（如果有）
+            const imageDiv = document.createElement('div');
+            imageDiv.className = 'song-image';
+            
+            // 尝试加载封面图片
+            const img = new Image();
+            img.src = `${song.path}/pic.jpg`;
+            img.onload = () => {
+                imageDiv.innerHTML = '';
+                imageDiv.appendChild(img);
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                
+                // 添加BPM显示
+                const bpmOverlay = document.createElement('div');
+                bpmOverlay.className = 'song-bpm-overlay';
+                bpmOverlay.textContent = `BPM: ${song.bpm}`;
+                imageDiv.appendChild(bpmOverlay);
+            };
+            img.onerror = () => {
+                imageDiv.textContent = song.name;
+                
+                // 添加BPM显示
+                const bpmOverlay = document.createElement('div');
+                bpmOverlay.className = 'song-bpm-overlay';
+                bpmOverlay.textContent = `BPM: ${song.bpm}`;
+                imageDiv.appendChild(bpmOverlay);
+            };
+            
+            // 曲目信息
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'song-info';
+            
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'song-title';
+            titleDiv.textContent = song.name;
+            
+            const artistDiv = document.createElement('div');
+            artistDiv.className = 'song-artist';
+            artistDiv.textContent = song.artist;
+            
+            const bpmDiv = document.createElement('div');
+            bpmDiv.className = 'song-bpm';
+            bpmDiv.textContent = `BPM: ${song.bpm}`;
+            
+            // 难度选择
+            const diffSelector = document.createElement('div');
+            diffSelector.className = 'difficulty-selector';
+            
+            const difficulties = [
+                { key: 'basic', label: 'BSC', level: song.levels[0], color: 'basic' },
+                { key: 'advanced', label: 'ADV', level: song.levels[1], color: 'advanced' },
+                { key: 'extreme', label: 'EXT', level: song.levels[2], color: 'extreme' }
+            ];
+            
+            difficulties.forEach(diff => {
+                const btn = document.createElement('button');
+                btn.className = `diff-btn ${diff.color}`;
+                btn.textContent = `${diff.label}\nLv.${diff.level}`;
+                btn.style.whiteSpace = 'pre-line';
+                btn.dataset.difficulty = diff.key;
+                
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectDifficulty(index, diff.key, btn);
+                });
+                
+                diffSelector.appendChild(btn);
+            });
+            
+            infoDiv.appendChild(titleDiv);
+            infoDiv.appendChild(artistDiv);
+            infoDiv.appendChild(bpmDiv);
+            infoDiv.appendChild(diffSelector);
+            
+            card.appendChild(imageDiv);
+            card.appendChild(infoDiv);
+            
+            // 点击卡片选择曲目
+            card.addEventListener('click', () => {
+                selectSong(index);
+            });
+            
+            return card;
+        }
+        
+        // 选择曲目
+        function selectSong(index) {
+            // 移除之前的选中状态
+            document.querySelectorAll('.song-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // 设置新的选中状态
+            const cards = document.querySelectorAll('.song-card');
+            cards[index].classList.add('selected');
+            
+            selectedSong = songs[index];
+            selectedDifficulty = null;
+            
+            // 重置难度选择
+            document.querySelectorAll('.diff-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            updateStartButton();
+        }
+        
+        // 选择难度
+        function selectDifficulty(songIndex, difficulty, btn) {
+            const song = songs[songIndex];
+            if (!song) return;
+            
+            const chartFile = difficultyFiles[difficulty];
+            const params = new URLSearchParams({
+                song: song.id,
+                difficulty: difficulty,
+                chart: chartFile
+            });
+            
+            // 直接跳转到游戏页面
+            window.location.href = `grid.html?${params.toString()}`;
+        }
+        
+        // 更新开始按钮状态
+        function updateStartButton() {
+            const startBtn = document.getElementById('startBtn');
+            startBtn.disabled = !(selectedSong && selectedDifficulty);
+        }
+        
+        // 开始游戏
+        document.getElementById('startBtn').addEventListener('click', () => {
+            if (selectedSong && selectedDifficulty) {
+                const chartFile = difficultyFiles[selectedDifficulty];
+                const params = new URLSearchParams({
+                    song: selectedSong.id,
+                    difficulty: selectedDifficulty,
+                    chart: chartFile
+                });
+                
+                window.location.href = `grid.html?${params.toString()}`;
+            }
+        });
+        
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', loadSongs);
+    </script>
+</body>
+</html>

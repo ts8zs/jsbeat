@@ -78,11 +78,29 @@
         let isPlaying = false;
         let startTime = 0;
         let pauseTime = 0;
-        const songPath = './songs/Evans/song.mp3';
+        let songPath = './songs/Evans/song.mp3'; // 默认值
         
         // 谱面数据
         let chartData = [];
-        const chartPath = './songs/Evans/pt_ext.jmt';
+        let chartPath = './songs/Evans/pt_ext.jmt'; // 默认值
+        
+        // 从 URL 参数获取曲目和难度
+        function parseURLParams() {
+            const params = new URLSearchParams(window.location.search);
+            const song = params.get('song');
+            const difficulty = params.get('difficulty');
+            const chart = params.get('chart');
+            
+            if (song && chart) {
+                songPath = `./songs/${song}/song.mp3`;
+                chartPath = `./songs/${song}/${chart}`;
+                console.log(`加载曲目: ${song}, 难度: ${difficulty}, 谱面: ${chart}`);
+                console.log(`歌曲路径: ${songPath}`);
+                console.log(`谱面路径: ${chartPath}`);
+            } else {
+                console.log('未检测到URL参数，使用默认配置');
+            }
+        }
         
         // Note对象数组，每个格子一个
         const notes = [];
@@ -524,12 +542,6 @@
         // 初始创建网格
         createGrid();
         
-        // 初始化音频
-        initAudio();
-        
-        // 加载谱面
-        loadChart();
-        
         // 动画循环 - 同步帧动画和音频
         app.ticker.add(() => {
             if (isPlaying && audioContext) {
@@ -542,11 +554,15 @@
         window.addEventListener('resize', () => {
             createGrid();
         });
-
-        // 动画循环（如果需要可以添加动画效果）
-        app.ticker.add(() => {
-            // 可以在这里添加动画逻辑
-        });
+        
+        // 解析URL参数（必须在initAudio和loadChart之前）
+        parseURLParams();
+        
+        // 初始化音频
+        initAudio();
+        
+        // 加载谱面
+        loadChart();
     </script>
 </body>
 </html>
