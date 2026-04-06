@@ -10,20 +10,36 @@
             padding: 0;
             overflow: hidden;
             background-color: #2c3e50;
+            position: relative;
+            height: 100vh;
+            width: 100vw;
         }
-        canvas {
-            display: block;
-        }
-        .controls {
-            position: fixed;
-            top: 20px;
+        
+        /* Pixi画布容器 */
+        #pixiContainer {
+            position: absolute;
+            bottom: 0;
             left: 50%;
             transform: translateX(-50%);
+            width: 100vmin;
+            height: 100vmin;
+        }
+        
+        canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        .controls {
+            position: fixed;
+            top: 10px;
+            left: 10px;
             z-index: 100;
         }
         .play-button {
-            padding: 12px 30px;
-            font-size: 16px;
+            padding: 8px 20px;
+            font-size: 14px;
             background-color: #3498db;
             color: white;
             border: none;
@@ -37,23 +53,85 @@
         .play-button:active {
             background-color: #21618c;
         }
+        
+        /* 进度条样式 */
+        .progress-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .progress-bar-wrapper {
+            width: 60vw;
+            max-width: 800px;
+            height: 8px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background-color: rgba(52, 152, 219, 0.8);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        .progress-time {
+            color: white;
+            font-size: 12px;
+            font-family: Arial, sans-serif;
+        }
     </style>
 </head>
 <body>
+    <div id="pixiContainer">
+        <!-- Pixi画布将在这里创建 -->
+    </div>
+    
     <div class="controls">
         <button id="playButton" class="play-button">播放</button>
     </div>
     
+    <div class="progress-container" id="progressContainer" style="display: none;">
+        <div class="progress-bar-wrapper" id="progressBarWrapper">
+            <div class="progress-bar-fill" id="progressBarFill"></div>
+        </div>
+        <div class="progress-time" id="progressTime">0:00 / 0:00</div>
+    </div>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
     <script>
+        // 获取容器
+        const pixiContainer = document.getElementById('pixiContainer');
+        
+        // 计算容器大小（1:1比例）
+        function getContainerSize() {
+            const minDimension = Math.min(window.innerWidth, window.innerHeight);
+            return { width: minDimension, height: minDimension };
+        }
+        
+        const containerSize = getContainerSize();
+        
         // 初始化Pixi应用
         const app = new PIXI.Application({
-            resizeTo: window,
+            width: containerSize.width,
+            height: containerSize.height,
             backgroundColor: 0x2c3e50,
-            antialias: true
+            antialias: true,
+            autoDensity: true,
+            resolution: window.devicePixelRatio || 1
         });
         
-        document.body.appendChild(app.view);
+        pixiContainer.appendChild(app.view);
 
         // 创建容器用于放置4x4网格
         const gridContainer = new PIXI.Container();
@@ -109,6 +187,9 @@
         // 判定窗口：base0016~18（帧索引15~17）
         const perfectWindowStart = 15; // base0016
         const perfectWindowEnd = 17;   // base0018
+        
+        // Start Here提示文本
+        let startHereTexts = [];
 
         // 创建4x4网格
         function createGrid() {
@@ -118,16 +199,8 @@
             // 清除现有的图形
             gridContainer.removeChildren();
             
-            // 计算单元格大小，确保网格适配屏幕
-            const maxWidth = app.screen.width * 0.9; // 占屏幕宽度的90%
-            const maxHeight = app.screen.height * 0.9; // 占屏幕高度的90%
-            
-            // 根据屏幕比例决定使用宽度还是高度作为基准
-            if (maxWidth / gridSize < maxHeight / gridSize) {
-                cellSize = Math.floor(maxWidth / gridSize);
-            } else {
-                cellSize = Math.floor(maxHeight / gridSize);
-            }
+            // 网格占满整个画布
+            cellSize = Math.floor(app.screen.width / gridSize);
             
             gridWidth = cellSize * gridSize;
             gridHeight = cellSize * gridSize;
@@ -171,12 +244,136 @@
                 savedNotes.forEach(note => {
                     notes.push(note);
                     gridContainer.addChild(note.animation);
+                    gridContainer.addChild(note.touchPerfectAnimation);
                 });
                 updateAllNotesPosition();
             }
+        }
+        
+        // 创建进度条
+        function createProgressBar() {
+            const barWidth = app.screen.width * 0.8;
+            const barHeight = 8;
+            const barX = (app.screen.width - barWidth) / 2;
+            const barY = 20;
             
-            // 居底对齐
-            positionGrid();
+            // 背景
+            if (!progressBackground) {
+                progressBackground = new PIXI.Graphics();
+                progressContainer.addChild(progressBackground);
+            }
+            progressBackground.clear();
+            progressBackground.beginFill(0x000000, 0.3);
+            progressBackground.drawRoundedRect(barX, barY, barWidth, barHeight, 4);
+            progressBackground.endFill();
+            
+            // 进度条
+            if (!progressBar) {
+                progressBar = new PIXI.Graphics();
+                progressContainer.addChildAt(progressBar, 0);
+            }
+            progressBar.clear();
+            progressBar.beginFill(0x3498db, 0.8);
+            progressBar.drawRoundedRect(barX, barY, 0, barHeight, 4);
+            progressBar.endFill();
+            
+            // 时间文本
+            if (!progressText) {
+                progressText = new PIXI.Text('0:00 / 0:00', {
+                    fontFamily: 'Arial',
+                    fontSize: 14,
+                    fill: 0xffffff,
+                    align: 'center'
+                });
+                progressContainer.addChild(progressText);
+            }
+            progressText.x = app.screen.width / 2;
+            progressText.y = barY + barHeight + 5;
+            progressText.anchor.set(0.5, 0);
+            
+            // 添加交互区域用于点击
+            let clickArea = progressContainer.getChildByName('progressClickArea');
+            if (!clickArea) {
+                clickArea = new PIXI.Graphics();
+                clickArea.name = 'progressClickArea';
+                clickArea.interactive = true;
+                clickArea.buttonMode = true;
+                clickArea.on('pointerdown', onProgressClick);
+                progressContainer.addChild(clickArea);
+            }
+            clickArea.clear();
+            clickArea.beginFill(0x000000, 0); // 透明
+            clickArea.drawRect(barX - 10, barY - 10, barWidth + 20, barHeight + 20);
+            clickArea.endFill();
+        }
+        
+        // 进度条点击事件
+        function onProgressClick(event) {
+            if (!audioBuffer) return;
+            
+            const duration = audioBuffer.duration;
+            const barWidth = app.screen.width * 0.8;
+            const barX = (app.screen.width - barWidth) / 2;
+            
+            const localPos = event.data.getLocalPosition(progressContainer);
+            const relativeX = localPos.x - barX;
+            let progress = relativeX / barWidth;
+            progress = Math.max(0, Math.min(1, progress));
+            
+            // 跳转到对应位置
+            if (isPlaying) {
+                stopAudio();
+            }
+            pauseTime = duration * progress;
+            playAudio();
+        }
+        
+        // 更新进度条
+        function updateProgress() {
+            if (!isPlaying || !audioBuffer || !progressBar) return;
+            
+            const currentTime = getCurrentTime();
+            const duration = audioBuffer.duration;
+            const progress = Math.min(currentTime / duration, 1);
+            
+            const barWidth = app.screen.width * 0.8;
+            const barX = (app.screen.width - barWidth) / 2;
+            const barHeight = 8;
+            const barY = 20;
+            
+            // 更新进度条宽度
+            progressBar.clear();
+            progressBar.beginFill(0x3498db, 0.8);
+            progressBar.drawRoundedRect(barX, barY, barWidth * progress, barHeight, 4);
+            progressBar.endFill();
+            
+            // 更新时间文本
+            const currentMinutes = Math.floor(currentTime / 60);
+            const currentSeconds = Math.floor(currentTime % 60);
+            const totalMinutes = Math.floor(duration / 60);
+            const totalSeconds = Math.floor(duration % 60);
+            
+            progressText.text = `${currentMinutes}:${String(currentSeconds).padStart(2, '0')} / ${totalMinutes}:${String(totalSeconds).padStart(2, '0')}`;
+        }
+        
+        // 更新进度条位置
+        function updateProgressPosition() {
+            if (!progressBackground || !progressBar || !progressText) return;
+            
+            const barWidth = app.screen.width * 0.8;
+            const barHeight = 8;
+            const barX = (app.screen.width - barWidth) / 2;
+            const barY = 20;
+            
+            // 重新绘制背景
+            progressBackground.clear();
+            progressBackground.beginFill(0x000000, 0.3);
+            progressBackground.drawRoundedRect(barX, barY, barWidth, barHeight, 4);
+            progressBackground.endFill();
+            
+            // 更新文本位置
+            progressText.x = app.screen.width / 2;
+            progressText.y = barY + barHeight + 5;
         }
 
         // 解析谱面文件
@@ -285,8 +482,88 @@
                 animation.on('pointerdown', () => handleTouch(i));
             }
             
+            // 创建Start Here提示文本
+            createStartHereHints();
+            
             // 更新所有note的位置
             updateAllNotesPosition();
+        }
+        
+        // 创建Start Here提示
+        function createStartHereHints() {
+            // 清除旧的提示
+            startHereTexts.forEach(text => {
+                if (text.parent) {
+                    text.parent.removeChild(text);
+                }
+            });
+            startHereTexts = [];
+            
+            if (chartData.length === 0) return;
+            
+            // 找到最早的note时间
+            const sortedNotes = [...chartData].sort((a, b) => a.time - b.time);
+            const earliestTime = sortedNotes[0].time;
+            
+            // 只找出时间完全等于最早时间的note（同时出现的）
+            const simultaneousNotes = sortedNotes.filter(n => n.time === earliestTime);
+            
+            console.log(`最早的note时间: ${earliestTime}ms, 同时出现的note数量: ${simultaneousNotes.length}`);
+            
+            // 为这些同时出现的note的格子创建提示
+            simultaneousNotes.forEach(note => {
+                const text = new PIXI.Text('START HERE', {
+                    fontFamily: 'Arial',
+                    fontSize: 16,
+                    fontWeight: 'bold',
+                    fill: 0xffff00,
+                    stroke: 0x000000,
+                    strokeThickness: 3,
+                    align: 'center'
+                });
+                text.anchor.set(0.5);
+                text.visible = false;
+                gridContainer.addChild(text);
+                
+                startHereTexts.push({
+                    text: text,
+                    cellIndex: note.cellIndex,
+                    row: note.row,
+                    col: note.col,
+                    firstNoteTime: note.time
+                });
+            });
+        }
+        
+        // 更新Start Here提示位置和可见性
+        function updateStartHereHints() {
+            if (startHereTexts.length === 0) return;
+            
+            const currentTime = isPlaying && audioContext ? getCurrentTime() * 1000 : 0; // 转换为毫秒
+            
+            startHereTexts.forEach(hint => {
+                // 更新位置
+                hint.text.x = hint.col * cellSize + cellSize / 2;
+                hint.text.y = hint.row * cellSize + cellSize / 2;
+                
+                // 判断是否应该显示：在当前时间之前且距离note还有至少800ms
+                const timeToNote = hint.firstNoteTime - currentTime;
+                
+                if (timeToNote > 800 && timeToNote < 3000) {
+                    // 在note出现前800ms到3000ms之间显示
+                    hint.text.visible = true;
+                    // 根据距离调整透明度
+                    const alpha = Math.min(1, timeToNote / 2000);
+                    hint.text.alpha = alpha;
+                } else if (timeToNote >= 3000) {
+                    // 距离还很远，显示但完全透明
+                    hint.text.visible = true;
+                    hint.text.alpha = 0;
+                } else {
+                    // note已经出现或即将出现，隐藏
+                    hint.text.visible = false;
+                }
+            });
         }
         
         // 更新所有note的位置和大小
@@ -473,12 +750,19 @@
             audioSource.start(0, offset);
             startTime = audioContext.currentTime - offset;
             
+            // 显示进度条
+            domProgressContainer.style.display = 'flex';
+            
             audioSource.onended = () => {
                 if (isPlaying) {
                     isPlaying = false;
                     pauseTime = 0;
                     audioSource = null;
                     updatePlayButton();
+                    // 隐藏进度条
+                    domProgressContainer.style.display = 'none';
+                    progressBarFill.style.width = '0%';
+                    progressTimeText.textContent = '0:00 / 0:00';
                 }
             };
             
@@ -534,26 +818,49 @@
 
 
         // 定位网格使其居底
-        function positionGrid() {
-            gridContainer.x = (app.screen.width - gridWidth) / 2;
-            gridContainer.y = app.screen.height - gridHeight;
-        }
-
         // 初始创建网格
         createGrid();
         
         // 动画循环 - 同步帧动画和音频
         app.ticker.add(() => {
+            // 始终更新Start Here提示（即使未播放）
+            updateStartHereHints();
+            
             if (isPlaying && audioContext) {
                 const currentTime = getCurrentTime() * 1000; // 转换为毫秒
                 updateNotes(currentTime);
+                updateProgress(); // 更新进度条
             }
         });
 
         // 窗口大小改变时重新调整
-        window.addEventListener('resize', () => {
-            createGrid();
-        });
+        let resizeTimeout;
+        function handleResize() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                const newSize = getContainerSize();
+                app.renderer.resize(newSize.width, newSize.height);
+                createGrid();
+            }, 100); // 防抖100ms
+        }
+        
+        window.addEventListener('resize', handleResize);
+        
+        // 监听窗口状态变化（最大化/还原）
+        let lastWidth = window.innerWidth;
+        let lastHeight = window.innerHeight;
+        
+        function checkWindowSize() {
+            if (window.innerWidth !== lastWidth || window.innerHeight !== lastHeight) {
+                lastWidth = window.innerWidth;
+                lastHeight = window.innerHeight;
+                handleResize();
+            }
+            requestAnimationFrame(checkWindowSize);
+        }
+        
+        // 启动窗口大小检测
+        checkWindowSize();
         
         // 解析URL参数（必须在initAudio和loadChart之前）
         parseURLParams();
@@ -563,6 +870,51 @@
         
         // 加载谱面
         loadChart();
+        
+        // DOM进度条相关元素
+        const domProgressContainer = document.getElementById('progressContainer');
+        const progressBarWrapper = document.getElementById('progressBarWrapper');
+        const progressBarFill = document.getElementById('progressBarFill');
+        const progressTimeText = document.getElementById('progressTime');
+        
+        // 更新DOM进度条
+        function updateProgress() {
+            if (!isPlaying || !audioBuffer) return;
+            
+            const currentTime = getCurrentTime();
+            const duration = audioBuffer.duration;
+            const progress = Math.min(currentTime / duration, 1);
+            
+            // 更新进度条宽度
+            progressBarFill.style.width = (progress * 100) + '%';
+            
+            // 更新时间文本
+            const currentMinutes = Math.floor(currentTime / 60);
+            const currentSeconds = Math.floor(currentTime % 60);
+            const totalMinutes = Math.floor(duration / 60);
+            const totalSeconds = Math.floor(duration % 60);
+            
+            progressTimeText.textContent = `${currentMinutes}:${String(currentSeconds).padStart(2, '0')} / ${totalMinutes}:${String(totalSeconds).padStart(2, '0')}`;
+        }
+        
+        // 进度条点击事件
+        progressBarWrapper.addEventListener('click', (e) => {
+            if (!audioBuffer) return;
+            
+            const rect = progressBarWrapper.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const progress = clickX / rect.width;
+            const clampedProgress = Math.max(0, Math.min(1, progress));
+            
+            const duration = audioBuffer.duration;
+            
+            // 跳转到对应位置
+            if (isPlaying) {
+                stopAudio();
+            }
+            pauseTime = duration * clampedProgress;
+            playAudio();
+        });
     </script>
 </body>
 </html>
