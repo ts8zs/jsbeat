@@ -212,19 +212,6 @@
             padding: 50px;
         }
         
-        .marker-selector {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 10px 15px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-        }
         
         .marker-label {
             font-size: 0.9em;
@@ -257,26 +244,376 @@
             object-fit: cover;
             border: 2px solid #ddd;
         }
+        
+        /* 随机推荐区域 */
+        .random-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .random-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .random-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .random-refresh-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: transform 0.2s;
+        }
+        
+        .random-refresh-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .random-songs {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding-bottom: 10px;
+            scroll-behavior: smooth;
+            justify-content: center;
+        }
+        
+        /* 自定义滚动条样式 */
+        .random-songs::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .random-songs::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+        
+        .random-songs::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 4px;
+        }
+        
+        .random-songs::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.8);
+        }
+        
+        .random-song-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.3s;
+            display: flex;
+            flex-direction: column;
+            aspect-ratio: 1 / 1;
+            position: relative;
+            flex-shrink: 0;
+            width: 150px;
+        }
+        
+        .random-song-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .random-song-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            flex-shrink: 0;
+        }
+        
+        .random-song-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+            padding: 40px 10px 10px;
+            color: white;
+        }
+        
+        .random-song-title {
+            font-size: 0.95em;
+            font-weight: bold;
+            margin-bottom: 3px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+        
+        .random-song-artist {
+            font-size: 0.8em;
+            opacity: 0.9;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+        
+        /* 控制和排序区域 */
+        .controls-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .control-label {
+            font-weight: bold;
+            color: #333;
+            white-space: nowrap;
+        }
+        
+        .control-select,
+        .control-input {
+            padding: 8px 12px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background: white;
+            color: #333;
+            font-size: 0.9em;
+            outline: none;
+        }
+        
+        .control-input {
+            width: 100px;
+        }
+        
+        /* 排序外框样式 */
+        .sort-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 8px 12px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+        }
+        
+        .sort-order-toggle {
+            padding: 8px 12px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background: white;
+            color: #333;
+            font-size: 0.9em;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .sort-order-toggle:hover {
+            background: #f0f0f0;
+        }
+        
+        /* 搜索框置顶样式 */
+        .search-box.sticky {
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            background: transparent;
+        }
+        
+        /* 返回顶部按钮 */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5em;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            transition: transform 0.3s, opacity 0.3s;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .back-to-top:hover {
+            transform: scale(1.1);
+        }
+        
+        /* 设置按钮 */
+        .settings-toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5em;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            transition: transform 0.3s;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .settings-toggle-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        /* 设置面板 */
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 320px;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: -5px 0 20px rgba(0,0,0,0.3);
+            transition: right 0.3s ease-in-out;
+            z-index: 1000;
+            padding: 80px 20px 20px;
+            overflow-y: auto;
+        }
+        
+        .settings-panel.open {
+            right: 0;
+        }
+        
+        .settings-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .setting-item {
+            margin-bottom: 20px;
+        }
+        
+        .setting-label {
+            display: block;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        /* 音效开关样式 */
+        #soundToggleSlider:before {
+            position: absolute;
+            content: '';
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        
+        #soundToggle:checked ~ #soundToggleSlider {
+            background-color: #667eea;
+        }
+        
+        #soundToggle:checked ~ #soundToggleSlider:before {
+            transform: translateX(24px);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>JSBeat</h1>
         
-        <!-- Marker选择器 -->
-        <div class="marker-selector">
-            <span class="marker-label">Marker:</span>
-            <select id="markerSelect" class="marker-select">
-                <option value="thundergate">Thundergate</option>
-                <option value="flower">Flower</option>
-                <option value="knit">Knit</option>
-                <option value="ripples">Ripples</option>
-            </select>
-            <img id="markerPreview" class="marker-preview" src="./markers/thundergate/preview.png" alt="Marker Preview">
+        <!-- 设置按钮 -->
+        <button id="settingsToggleBtn" class="settings-toggle-btn" title="设置">⚙️</button>
+        
+        <!-- 设置面板 -->
+        <div id="settingsPanel" class="settings-panel">
+            <div class="settings-title">⚙️ 设置</div>
+            
+            <div class="setting-item">
+                <label class="setting-label">Marker:</label>
+                <select id="markerSelect" class="marker-select" style="width: 100%;">
+                    <option value="thundergate">Thundergate</option>
+                    <option value="flower">Flower</option>
+                    <option value="knit">Knit</option>
+                    <option value="ripples">Ripples</option>
+                </select>
+                <img id="markerPreview" class="marker-preview" src="./markers/thundergate/preview.png" alt="Marker Preview" style="margin-top: 10px; width: 60px; height: 60px;">
+            </div>
+            
+            <div class="setting-item">
+                <label class="setting-label">判定延迟(ms):</label>
+                <input type="number" id="judgmentDelayInput" class="control-input" value="0" min="-50" max="50" step="1" style="width: 100%;">
+            </div>
         </div>
         
-        <div class="search-box">
-            <input type="text" id="searchInput" class="search-input" placeholder="搜索曲目名称、作曲家...">
+        <!-- 随机推荐区域 -->
+        <div id="randomSection" class="random-section" style="display: none;">
+            <div class="random-header">
+                <div class="random-title">🎲 随机推荐</div>
+                <button id="randomRefreshBtn" class="random-refresh-btn">🔄 换一批</button>
+            </div>
+            <div id="randomSongs" class="random-songs"></div>
+        </div>
+        
+        <!-- 控制和排序区域（移到搜索框左边） -->
+        <div class="search-box sticky" id="searchBoxContainer">
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <div class="sort-controls">
+                    <span class="control-label">排序:</span>
+                    <select id="sortField" class="control-select" style="border: none; padding: 0; background: transparent;">
+                        <option value="name">歌曲名称</option>
+                        <option value="artist">歌手名称</option>
+                        <option value="bsc">BSC难度</option>
+                        <option value="adv">ADV难度</option>
+                        <option value="ext">EXT难度</option>
+                    </select>
+                    <button id="sortOrderToggle" class="sort-order-toggle">↑ 升序</button>
+                </div>
+                <input type="text" id="searchInput" class="search-input" placeholder="搜索曲目名称、作曲家、难度..." style="flex: 1;">
+            </div>
         </div>
         
         <div id="loading" class="loading">加载中...</div>
@@ -284,6 +621,9 @@
         <div id="songsContainer" class="songs-grid" style="display: none;"></div>
         
         <button id="startBtn" class="start-btn" disabled>开始游戏</button>
+        
+        <!-- 返回顶部按钮 -->
+        <button id="backToTop" class="back-to-top" title="返回顶部">↑</button>
     </div>
     
     <script>
@@ -291,6 +631,8 @@
         let selectedSong = null;
         let selectedDifficulty = null;
         let selectedMarker = 'thundergate'; // 默认marker
+        let currentSortField = 'name'; // 当前排序字段
+        let currentSortOrder = 'asc'; // 当前排序顺序
         
         // 难度对应的谱面文件
         const difficultyFiles = {
@@ -375,9 +717,12 @@
                     displaySongs();
                 }
                 
+                return songs; // 返回歌曲列表
+                
             } catch (error) {
                 console.error('加载曲目失败:', error);
                 document.getElementById('loading').textContent = '加载失败，请检查文件结构';
+                return [];
             }
         }
         
@@ -410,12 +755,24 @@
             
             container.innerHTML = '';
             
-            const filteredSongs = songs.filter(song => {
+            let filteredSongs = songs.filter(song => {
                 if (!filterText) return true;
                 const searchLower = filterText.toLowerCase();
-                return song.name.toLowerCase().includes(searchLower) ||
-                       song.artist.toLowerCase().includes(searchLower);
+                
+                // 搜索歌曲名称、作曲家
+                const nameMatch = song.name.toLowerCase().includes(searchLower);
+                const artistMatch = song.artist.toLowerCase().includes(searchLower);
+                
+                // 搜索难度数字（BSC, ADV, EXT）
+                const levelMatch = song.levels.some(level => 
+                    level != null && level.toString().includes(searchLower)
+                );
+                
+                return nameMatch || artistMatch || levelMatch;
             });
+            
+            // 应用排序
+            filteredSongs = sortSongs(filteredSongs);
             
             if (filteredSongs.length === 0) {
                 container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: white; font-size: 1.2em; padding: 50px;">未找到匹配的曲目</div>';
@@ -431,6 +788,146 @@
             container.style.display = 'grid';
         }
         
+        // 排序函数
+        function sortSongs(songList) {
+            const sorted = [...songList];
+            const multiplier = currentSortOrder === 'asc' ? 1 : -1;
+            
+            sorted.sort((a, b) => {
+                let valueA, valueB;
+                
+                switch(currentSortField) {
+                    case 'name':
+                        valueA = a.name.toLowerCase();
+                        valueB = b.name.toLowerCase();
+                        return valueA.localeCompare(valueB) * multiplier;
+                    
+                    case 'artist':
+                        valueA = a.artist.toLowerCase();
+                        valueB = b.artist.toLowerCase();
+                        return valueA.localeCompare(valueB) * multiplier;
+                    
+                    case 'bsc':
+                        valueA = a.levels[0] || 0;
+                        valueB = b.levels[0] || 0;
+                        return (valueA - valueB) * multiplier;
+                    
+                    case 'adv':
+                        valueA = a.levels[1] || 0;
+                        valueB = b.levels[1] || 0;
+                        return (valueA - valueB) * multiplier;
+                    
+                    case 'ext':
+                        valueA = a.levels[2] || 0;
+                        valueB = b.levels[2] || 0;
+                        return (valueA - valueB) * multiplier;
+                    
+                    default:
+                        return 0;
+                }
+            });
+            
+            return sorted;
+        }
+        
+        // 随机推荐功能
+        function showRandomSongs() {
+            if (songs.length < 2) return;
+            
+            const randomSection = document.getElementById('randomSection');
+            const randomSongsContainer = document.getElementById('randomSongs');
+            
+            // 先显示容器，以便获取正确的宽度
+            randomSection.style.display = 'block';
+            
+            // 计算容器宽度能容纳多少张卡片
+            const containerWidth = randomSongsContainer.offsetWidth;
+            const cardWidth = 150; // 卡片宽度
+            const gap = 15; // 间距
+            const maxCards = Math.floor((containerWidth + gap) / (cardWidth + gap));
+            
+            // 随机选择不超过容器宽度的歌曲数量
+            const shuffled = [...songs].sort(() => Math.random() - 0.5);
+            const count = Math.min(maxCards, songs.length);
+            const selected = shuffled.slice(0, count);
+            
+            randomSongsContainer.innerHTML = '';
+            
+            selected.forEach(song => {
+                const card = document.createElement('div');
+                card.className = 'random-song-card';
+                card.dataset.songId = song.id; // 存储歌曲ID用于滚动定位
+                
+                // 尝试加载封面图片
+                const img = new Image();
+                img.className = 'random-song-image';
+                img.src = `${song.path}/pic.jpg`;
+                img.onerror = () => {
+                    img.style.background = 'linear-gradient(45deg, #667eea, #764ba2)';
+                };
+                
+                // 创建文字覆盖层
+                const overlay = document.createElement('div');
+                overlay.className = 'random-song-overlay';
+                
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'random-song-title';
+                titleDiv.textContent = song.name;
+                titleDiv.title = song.name; // 鼠标悬停显示完整标题
+                
+                const artistDiv = document.createElement('div');
+                artistDiv.className = 'random-song-artist';
+                artistDiv.textContent = song.artist;
+                artistDiv.title = song.artist; // 鼠标悬停显示完整歌手名
+                
+                overlay.appendChild(titleDiv);
+                overlay.appendChild(artistDiv);
+                
+                card.appendChild(img);
+                card.appendChild(overlay);
+                
+                // 点击随机卡片滚动到对应的歌曲卡片
+                card.addEventListener('click', () => {
+                    // 查找对应的歌曲卡片（通过songId匹配）
+                    const songCards = document.querySelectorAll('.song-card');
+                    for (const card of songCards) {
+                        if (card.dataset.songId === song.id) {
+                            // 滚动到该卡片
+                            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            // 高亮显示
+                            card.classList.add('selected');
+                            setTimeout(() => {
+                                card.classList.remove('selected');
+                            }, 2000);
+                            break;
+                        }
+                    }
+                });
+                
+                randomSongsContainer.appendChild(card);
+            });
+        }
+        
+        // 刷新随机推荐
+        function refreshRandomSongs() {
+            showRandomSongs();
+        }
+        
+        // 返回顶部功能
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 监听滚动事件，显示/隐藏返回顶部按钮
+        function handleScroll() {
+            const backToTopBtn = document.getElementById('backToTop');
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        }
+        
         // 搜索功能
         document.getElementById('searchInput').addEventListener('input', (e) => {
             displaySongs(e.target.value);
@@ -440,7 +937,7 @@
         function createSongCard(song, index) {
             const card = document.createElement('div');
             card.className = 'song-card';
-            card.dataset.index = index;
+            card.dataset.songId = song.id; // 使用歌曲ID而非索引
             
             // 曲目图片（如果有）
             const imageDiv = document.createElement('div');
@@ -507,7 +1004,7 @@
                 
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    selectDifficulty(index, diff.key, btn);
+                    selectDifficulty(song, diff.key, btn);
                 });
                 
                 diffSelector.appendChild(btn);
@@ -523,24 +1020,28 @@
             
             // 点击卡片选择曲目
             card.addEventListener('click', () => {
-                selectSong(index);
+                selectSong(song);
             });
             
             return card;
         }
         
         // 选择曲目
-        function selectSong(index) {
+        function selectSong(song) {
             // 移除之前的选中状态
             document.querySelectorAll('.song-card').forEach(card => {
                 card.classList.remove('selected');
             });
             
-            // 设置新的选中状态
+            // 设置新的选中状态（通过songId匹配）
             const cards = document.querySelectorAll('.song-card');
-            cards[index].classList.add('selected');
+            cards.forEach(card => {
+                if (card.dataset.songId === song.id) {
+                    card.classList.add('selected');
+                }
+            });
             
-            selectedSong = songs[index];
+            selectedSong = song;
             selectedDifficulty = null;
             
             // 重置难度选择
@@ -552,8 +1053,7 @@
         }
         
         // 选择难度
-        function selectDifficulty(songIndex, difficulty, btn) {
-            const song = songs[songIndex];
+        function selectDifficulty(song, difficulty, btn) {
             if (!song) return;
             
             const chartFile = difficultyFiles[difficulty];
@@ -565,7 +1065,7 @@
             });
             
             // 直接跳转到游戏页面
-            window.location.href = `grid.html?${params.toString()}`;
+            window.location.href = `play.html?${params.toString()}`;
         }
         
         // 更新开始按钮状态
@@ -585,7 +1085,7 @@
                     marker: selectedMarker
                 });
                 
-                window.location.href = `grid.html?${params.toString()}`;
+                window.location.href = `play.html?${params.toString()}`;
             }
         });
         
@@ -596,6 +1096,92 @@
             // 保存到localStorage
             localStorage.setItem('selectedMarker', selectedMarker);
         });
+        
+        // 判定延迟设置事件
+        const judgmentDelayInput = document.getElementById('judgmentDelayInput');
+        if (judgmentDelayInput) {
+            // 从localStorage加载保存的判定延迟
+            const savedDelay = localStorage.getItem('judgmentDelay');
+            if (savedDelay !== null) {
+                const delayValue = parseInt(savedDelay) || 0;
+                // 确保值在有效范围内
+                judgmentDelayInput.value = Math.max(-50, Math.min(50, delayValue));
+            }
+            
+            // 监听变化并保存
+            judgmentDelayInput.addEventListener('change', (e) => {
+                let delay = parseInt(e.target.value) || 0;
+                
+                // 限制在 -50 到 50 之间
+                delay = Math.max(-50, Math.min(50, delay));
+                
+                e.target.value = delay;
+                localStorage.setItem('judgmentDelay', delay.toString());
+                console.log(`判定延迟已保存: ${delay}ms`);
+            });
+        }
+        
+        // 排序字段改变事件
+        document.getElementById('sortField').addEventListener('change', (e) => {
+            currentSortField = e.target.value;
+            // 保存到localStorage
+            localStorage.setItem('currentSortField', currentSortField);
+            // 重新显示歌曲列表
+            const searchInput = document.getElementById('searchInput');
+            displaySongs(searchInput.value);
+        });
+        
+        // 排序顺序切换按钮
+        const sortOrderToggle = document.getElementById('sortOrderToggle');
+        if (sortOrderToggle) {
+            // 初始化按钮文本
+            sortOrderToggle.textContent = currentSortOrder === 'asc' ? '↑ 升序' : '↓ 降序';
+            
+            sortOrderToggle.addEventListener('click', () => {
+                // 切换排序顺序
+                currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+                // 更新按钮文本
+                sortOrderToggle.textContent = currentSortOrder === 'asc' ? '↑ 升序' : '↓ 降序';
+                // 保存到localStorage
+                localStorage.setItem('currentSortOrder', currentSortOrder);
+                // 重新显示歌曲列表
+                const searchInput = document.getElementById('searchInput');
+                displaySongs(searchInput.value);
+            });
+        }
+        
+        // 刷新随机推荐按钮
+        document.getElementById('randomRefreshBtn').addEventListener('click', () => {
+            refreshRandomSongs();
+        });
+        
+        // 返回顶部按钮
+        document.getElementById('backToTop').addEventListener('click', () => {
+            scrollToTop();
+        });
+        
+        // 设置面板切换
+        const settingsToggleBtn = document.getElementById('settingsToggleBtn');
+        const settingsPanel = document.getElementById('settingsPanel');
+        
+        if (settingsToggleBtn && settingsPanel) {
+            settingsToggleBtn.addEventListener('click', () => {
+                settingsPanel.classList.toggle('open');
+                // 切换按钮图标
+                settingsToggleBtn.textContent = settingsPanel.classList.contains('open') ? '✖️' : '⚙️';
+            });
+            
+            // 点击面板外部关闭
+            document.addEventListener('click', (e) => {
+                if (!settingsPanel.contains(e.target) && !settingsToggleBtn.contains(e.target)) {
+                    settingsPanel.classList.remove('open');
+                    settingsToggleBtn.textContent = '⚙️';
+                }
+            });
+        }
+        
+        // 监听滚动事件
+        window.addEventListener('scroll', handleScroll);
         
         // 更新marker预览图
         function updateMarkerPreview() {
@@ -612,7 +1198,26 @@
                 document.getElementById('markerSelect').value = savedMarker;
                 updateMarkerPreview();
             }
-            loadSongs();
+            
+            // 从localStorage恢复排序设置
+            const savedSortField = localStorage.getItem('currentSortField');
+            if (savedSortField) {
+                currentSortField = savedSortField;
+                document.getElementById('sortField').value = savedSortField;
+            }
+            
+            const savedSortOrder = localStorage.getItem('currentSortOrder');
+            if (savedSortOrder) {
+                currentSortOrder = savedSortOrder;
+            }
+            
+            // 加载歌曲列表
+            loadSongs().then((loadedSongs) => {
+                // 歌曲加载完成后显示随机推荐
+                if (loadedSongs && loadedSongs.length > 0) {
+                    showRandomSongs();
+                }
+            });
         });
     </script>
 </body>

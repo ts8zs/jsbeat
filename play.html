@@ -9,7 +9,9 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background-color: #000000;
+            background-image: url('./bg.jpg');
+            background-repeat: repeat;
+            background-position: center;
             position: relative;
             height: 100vh;
             width: 100vw;
@@ -34,7 +36,7 @@
         /* 控制按钮容器样式 */
         .controls {
             position: fixed;
-            top: 10px;
+            top: 25px;
             right: 10px;
             z-index: 100;
             display: flex;
@@ -59,7 +61,7 @@
         .control-button {
             width: 50px; /* 增大按钮 */
             height: 50px; /* 增大按钮 */
-            background-color: rgba(52, 152, 219, 0.8);
+            background-color: #505131;
             color: white;
             border: none;
             border-radius: 50%;
@@ -72,17 +74,149 @@
         }
         
         .control-button:hover {
-            background-color: rgba(41, 128, 185, 0.9);
+            background-color: #c0c624;
         }
         
         .control-button:active {
-            background-color: rgba(33, 97, 140, 1);
+            background-color: #999c45;
+        }
+        
+        .control-button.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        /* 设置面板样式 */
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 320px;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: -5px 0 20px rgba(0,0,0,0.3);
+            transition: right 0.3s ease-in-out;
+            z-index: 100;
+            padding: 80px 20px 20px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .settings-panel.open {
+            display: block;
+            right: 0;
+        }
+        
+        .settings-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .setting-item {
+            margin-bottom: 20px;
+        }
+        
+        .setting-label {
+            display: block;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .marker-select {
+            padding: 8px 12px;
+            font-size: 0.9em;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.3s;
+            font-weight: bold;
+            width: 100%;
+        }
+        
+        .marker-select:focus {
+            border-color: #764ba2;
+        }
+        
+        .marker-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid #ddd;
+            margin-top: 10px;
+        }
+        
+        .delay-input {
+            padding: 8px 12px;
+            font-size: 0.9em;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background: white;
+            color: #333;
+            outline: none;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        /* 自动播放开关样式 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #667eea;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(24px);
         }
         
         /* 歌曲信息和判定统计容器样式 */
         .info-container {
             position: fixed;
-            top: 10px;
+            top: 25px;
             left: 10px;
             z-index: 100;
             color: white;
@@ -282,6 +416,44 @@
         <button id="backButton" class="control-button" title="返回">⬅️</button>
         <button id="replayButton" class="control-button" title="重玩">🔄</button>
         <button id="playButton" class="control-button" title="播放">▶️</button>
+        <button id="autoPlayButton" class="control-button" title="自动播放">🤖</button>
+        <button id="fullscreenButton" class="control-button" title="全屏">⛶</button>
+        <button id="settingsToggleBtn" class="control-button" title="设置">⚙️</button>
+    </div>
+    
+    <!-- 隐藏的文件输入 -->
+    <input type="file" id="songFileInput" accept=".mp3,.wav,.ogg" style="display: none;">
+    <input type="file" id="chartFileInput" accept=".jmt" style="display: none;">
+    
+    <!-- 设置面板 -->
+    <div id="settingsPanel" class="settings-panel">
+        <div class="settings-title">⚙️ 设置</div>
+        
+        <div class="setting-item">
+            <label class="setting-label">Marker:</label>
+            <select id="markerSelect" class="marker-select">
+                <option value="thundergate">Thundergate</option>
+                <option value="flower">Flower</option>
+                <option value="knit">Knit</option>
+                <option value="ripples">Ripples</option>
+            </select>
+            <img id="markerPreview" class="marker-preview" src="./markers/thundergate/preview.png" alt="Marker Preview">
+        </div>
+        
+        <div class="setting-item">
+            <label class="setting-label">判定延迟(ms):</label>
+            <input type="number" id="judgmentDelayInput" class="delay-input" value="0" min="-50" max="50" step="1">
+        </div>
+        
+        <div class="setting-item">
+            <label class="setting-label">加载文件:</label>
+            <div style="display: flex; gap: 10px; margin-top: 8px;">
+                <button id="loadSongBtn" class="control-button" style="width: auto; padding: 10px 15px; border-radius: 8px; font-size: 14px;" title="加载歌曲">🎵 歌曲</button>
+                <button id="loadChartBtn" class="control-button" style="width: auto; padding: 10px 15px; border-radius: 8px; font-size: 14px;" title="加载谱面">📄 谱面</button>
+            </div>
+        </div>
+        
+
     </div>
     
     <div class="progress-container" id="progressContainer" style="display: none;">
@@ -292,6 +464,7 @@
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
     <script>
         // 获取容器
         const pixiContainer = document.getElementById('pixiContainer');
@@ -348,6 +521,14 @@
         let pauseTime = 0;
         let songPath = './songs/Evans/song.mp3'; // 默认值
         
+        // Clap音效相关变量
+        let clapBuffer = null;
+        let lastClapTime = 0; // 上次播放clap的时间
+        const CLAP_COOLDOWN = 10; // clap冷却时间（毫秒）
+        
+        // 自动播放模式
+        let autoPlayMode = false; // 是否开启自动播放
+        
         // 谱面数据
         let chartData = [];
         let chartPath = './songs/Evans/pt_ext.jmt'; // 默认值
@@ -376,6 +557,7 @@
         // Combo显示文本
         let comboText = null;
         let comboLabelText = null;
+        let autoplayText = null; // Autoplay文本
         let lastCombo = 0; // 记录上一次的combo值，用于检测变化
         
         // 专辑封面相关变量
@@ -429,7 +611,8 @@
         }
         
         // 从 URL 参数获取曲目和难度
-        let selectedMarker = 'thundergate'; // 默认marker，从URL参数获取
+        let selectedMarker = 'thundergate'; // 默认marker，从localStorage或URL参数获取
+        let judgmentDelay = 0; // 判定延迟（毫秒），从localStorage获取
         
         function parseURLParams() {
             const params = new URLSearchParams(window.location.search);
@@ -438,17 +621,26 @@
             const chart = params.get('chart');
             const marker = params.get('marker');
             
-            if (marker) {
+            // 优先从localStorage读取marker设置
+            const savedMarker = localStorage.getItem('selectedMarker');
+            if (savedMarker) {
+                selectedMarker = savedMarker;
+                console.log(`从localStorage加载Marker: ${selectedMarker}`);
+            } else if (marker) {
+                // 如果没有保存的设置，才从URL参数获取
                 selectedMarker = marker;
-                console.log(`使用Marker: ${selectedMarker}`);
+                console.log(`从URL参数获取Marker: ${selectedMarker}`);
+            }
+            
+            // 从localStorage读取判定延迟设置
+            const savedDelay = localStorage.getItem('judgmentDelay');
+            if (savedDelay !== null) {
+                judgmentDelay = parseInt(savedDelay) || 0;
+                console.log(`从localStorage加载判定延迟: ${judgmentDelay}ms`);
             }
             
             // 根据选中的marker设置路径
-            markerBasePath = `./markers/${selectedMarker}/marker_base/`;
-            touchPerfectPath = `./markers/${selectedMarker}/touch_perfect/`;
-            touchGreatPath = `./markers/${selectedMarker}/touch_great/`;
-            touchGoodPath = `./markers/${selectedMarker}/touch_good/`;
-            touchPoorPath = `./markers/${selectedMarker}/touch_poor/`;
+            updateMarkerPaths();
             
             if (song && chart) {
                 songPath = `./songs/${song}/song.mp3`;
@@ -460,6 +652,15 @@
             } else {
                 console.log('未检测到URL参数，使用默认配置');
             }
+        }
+        
+        // 根据selectedMarker更新相关路径
+        function updateMarkerPaths() {
+            markerBasePath = `./markers/${selectedMarker}/marker_base/`;
+            touchPerfectPath = `./markers/${selectedMarker}/touch_perfect/`;
+            touchGreatPath = `./markers/${selectedMarker}/touch_great/`;
+            touchGoodPath = `./markers/${selectedMarker}/touch_good/`;
+            touchPoorPath = `./markers/${selectedMarker}/touch_poor/`;
         }
         
         // Note对象数组，每个格子一个
@@ -779,6 +980,7 @@
             // 保存Combo文本（如果存在）
             const savedComboText = comboText;
             const savedComboLabelText = comboLabelText;
+            const savedAutoplayText = autoplayText;
             
             // 保存所有note的判定动画（如果存在）
             const savedTouchAnimations = [];
@@ -799,8 +1001,15 @@
             
             // 重新添加Combo文本（如果存在）
             if (savedComboText && savedComboLabelText) {
-                gridContainer.addChildAt(savedComboLabelText, 0);
-                gridContainer.addChildAt(savedComboText, 1);
+                // 先添加Autoplay文本
+                if (savedAutoplayText) {
+                    gridContainer.addChildAt(savedAutoplayText, 0);
+                    savedAutoplayText.x = app.screen.width / 2;
+                    savedAutoplayText.y = app.screen.height / 2 - 50;
+                }
+                
+                gridContainer.addChildAt(savedComboLabelText, savedAutoplayText ? 1 : 0);
+                gridContainer.addChildAt(savedComboText, savedAutoplayText ? 2 : 1);
                 // 更新位置以适应新的屏幕尺寸
                 savedComboLabelText.x = app.screen.width / 2;
                 savedComboLabelText.y = app.screen.height / 2 - 10;
@@ -1002,6 +1211,22 @@
         // 创建Combo显示文本
         function createComboText() {
             if (!comboText) {
+                // 创建Autoplay标签（在COMBO上方）
+                autoplayText = new PIXI.Text('AUTOPLAY', {
+                    fontFamily: 'Arial',
+                    fontSize: 36,
+                    fontWeight: 'bold',
+                    fill: 0x00ff00, // 绿色
+                    stroke: 0x000000,
+                    strokeThickness: 4,
+                    align: 'center'
+                });
+                autoplayText.anchor.set(0.5, 1); // 底部对齐
+                autoplayText.x = app.screen.width / 2;
+                autoplayText.y = app.screen.height / 2 - 50; // 在COMBO上方
+                autoplayText.visible = false;
+                autoplayText.alpha = 0;
+                
                 // 创建"COMBO"标签
                 comboLabelText = new PIXI.Text('COMBO', {
                     fontFamily: 'Arial',
@@ -1037,8 +1262,9 @@
                 comboText.scale.set(1);
                 
                 // 添加到gridContainer的最底层
-                gridContainer.addChildAt(comboLabelText, 0);
-                gridContainer.addChildAt(comboText, 1);
+                gridContainer.addChildAt(autoplayText, 0);
+                gridContainer.addChildAt(comboLabelText, 1);
+                gridContainer.addChildAt(comboText, 2);
             }
         }
         
@@ -1338,47 +1564,152 @@
             try {
                 const response = await fetch(chartPath);
                 const text = await response.text();
-                const lines = text.split('\n');
-                
-                chartData = [];
-                
-                for (const line of lines) {
-                    const trimmed = line.trim();
-                    if (trimmed.startsWith('#')) {
-                        // 格式: #格子编号.毫秒数
-                        const content = trimmed.substring(1);
-                        const dotIndex = content.indexOf('.');
-                        
-                        if (dotIndex !== -1) {
-                            const cellNumber = parseInt(content.substring(0, dotIndex));
-                            const timeMs = parseInt(content.substring(dotIndex + 1));
-                            
-                            // 将格子编号转换为行列 (1-16 -> 0-15)
-                            const cellIndex = cellNumber - 1;
-                            const row = Math.floor(cellIndex / 4);
-                            const col = cellIndex % 4;
-                            
-                            chartData.push({
-                                cellIndex: cellIndex,
-                                row: row,
-                                col: col,
-                                time: timeMs
-                            });
-                        }
-                    }
-                }
-                
-                // 按时间排序
-                chartData.sort((a, b) => a.time - b.time);
-                
-                console.log(`谱面加载成功，共 ${chartData.length} 个note`);
-                
-                // 初始化所有格子的note
-                initNotes();
-                
+                parseChartText(text);
             } catch (error) {
                 console.error('谱面加载失败:', error);
             }
+        }
+        
+        // 读取MP3元数据（标题、艺术家、封面）
+        function readMP3Metadata(file) {
+            if (typeof jsmediatags === 'undefined') {
+                console.warn('jsmediatags库未加载');
+                // 如果库未加载，使用文件名作为标题
+                const songTitleElement = document.getElementById('songTitle');
+                if (songTitleElement) {
+                    songTitleElement.textContent = file.name.replace(/\.[^/.]+$/, "");
+                }
+                return;
+            }
+            
+            jsmediatags.read(file, {
+                onSuccess: function(tag) {
+                    console.log('MP3元数据:', tag);
+                    
+                    const tags = tag.tags;
+                    
+                    // 更新歌曲标题
+                    const songTitleElement = document.getElementById('songTitle');
+                    if (songTitleElement) {
+                        songTitleElement.textContent = tags.title || file.name.replace(/\.[^/.]+$/, "");
+                    }
+                    
+                    // 更新艺术家
+                    const songArtistElement = document.getElementById('songArtist');
+                    if (songArtistElement) {
+                        songArtistElement.textContent = tags.artist || '未知艺术家';
+                    }
+                    
+                    // 处理封面图片
+                    if (tags.picture) {
+                        const picture = tags.picture;
+                        const base64String = arrayBufferToBase64(picture.data);
+                        const imageUrl = `data:${picture.format};base64,${base64String}`;
+                        
+                        // 设置专辑封面背景
+                        setAlbumCoverBackground(imageUrl);
+                        
+                        console.log('封面图片已加载');
+                    } else {
+                        console.log('MP3文件中没有封面图片');
+                    }
+                },
+                onError: function(error) {
+                    console.error('读取MP3元数据失败:', error);
+                    // 失败时使用文件名作为标题
+                    const songTitleElement = document.getElementById('songTitle');
+                    if (songTitleElement) {
+                        songTitleElement.textContent = file.name.replace(/\.[^/.]+$/, "");
+                    }
+                }
+            });
+        }
+        
+        // 将ArrayBuffer转换为Base64
+        function arrayBufferToBase64(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            const len = bytes.byteLength;
+            for (let i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary);
+        }
+        
+        // 设置专辑封面背景
+        function setAlbumCoverBackground(imageUrl) {
+            // 清除旧的封面
+            albumCoverContainer.removeChildren();
+            
+            // 创建新的封面精灵
+            PIXI.Texture.fromURL(imageUrl).then(texture => {
+                const sprite = new PIXI.Sprite(texture);
+                
+                // 计算缩放比例，保持宽高比并覆盖整个容器
+                const scaleX = app.screen.width / texture.width;
+                const scaleY = app.screen.height / texture.height;
+                const scale = Math.max(scaleX, scaleY);
+                
+                sprite.scale.set(scale);
+                sprite.anchor.set(0.5);
+                sprite.x = app.screen.width / 2;
+                sprite.y = app.screen.height / 2;
+                
+                // 添加模糊效果
+                const blurFilter = new PIXI.BlurFilter();
+                blurFilter.blur = 8;
+                blurFilter.quality = 4;
+                sprite.filters = [blurFilter];
+                
+                // 降低透明度
+                sprite.alpha = 0.6;
+                
+                albumCoverContainer.addChild(sprite);
+                
+                console.log('专辑封面背景已设置');
+            }).catch(error => {
+                console.error('加载专辑封面失败:', error);
+            });
+        }
+        
+        // 解析谱面文本（可重用）
+        function parseChartText(text) {
+            const lines = text.split('\n');
+            chartData = [];
+            
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('#')) {
+                    // 格式: #格子编号.毫秒数
+                    const content = trimmed.substring(1);
+                    const dotIndex = content.indexOf('.');
+                    
+                    if (dotIndex !== -1) {
+                        const cellNumber = parseInt(content.substring(0, dotIndex));
+                        const timeMs = parseInt(content.substring(dotIndex + 1));
+                        
+                        // 将格子编号转换为行列 (1-16 -> 0-15)
+                        const cellIndex = cellNumber - 1;
+                        const row = Math.floor(cellIndex / 4);
+                        const col = cellIndex % 4;
+                        
+                        chartData.push({
+                            cellIndex: cellIndex,
+                            row: row,
+                            col: col,
+                            time: timeMs
+                        });
+                    }
+                }
+            }
+            
+            // 按时间排序
+            chartData.sort((a, b) => a.time - b.time);
+            
+            console.log(`谱面加载成功，共 ${chartData.length} 个note`);
+            
+            // 初始化所有格子的note
+            initNotes();
         }
         
         // 初始化所有格子的note对象
@@ -1517,16 +1848,20 @@
                 // 判断是否应该显示：在当前时间之前且距离note还有至少800ms
                 const timeToNote = hint.firstNoteTime - currentTime;
                 
-                if (timeToNote > 800 && timeToNote < 3000) {
-                    // 在note出现前800ms到3000ms之间显示
+                // 修复竞争条件：确保在游戏未开始或刚开始时也能显示提示
+                if (!isPlaying || timeToNote > 800) {
+                    // 游戏未播放或距离note出现还有足够时间时显示
                     hint.text.visible = true;
-                    // 根据距离调整透明度
-                    const alpha = Math.min(1, timeToNote / 2000);
+                    // 根据距离调整透明度，但确保至少有一定的可见度
+                    let alpha = 1;
+                    if (timeToNote > 3000) {
+                        // 距离还很远，逐渐淡入
+                        alpha = Math.min(1, (timeToNote - 3000) / 1000);
+                    } else if (timeToNote > 800) {
+                        // 在显示窗口内，保持完全可见
+                        alpha = 1;
+                    }
                     hint.text.alpha = alpha;
-                } else if (timeToNote >= 3000) {
-                    // 距离还很远，显示但完全透明
-                    hint.text.visible = true;
-                    hint.text.alpha = 0;
                 } else {
                     // note已经出现或即将出现，隐藏
                     hint.text.visible = false;
@@ -1602,7 +1937,9 @@
                 // 跳过已经判定过的note
                 if (judgedNotes.has(noteKey)) continue;
                 
-                const timeDiff = Math.abs(currentTime - noteData.time);
+                // 应用判定延迟
+                const adjustedNoteTime = noteData.time + judgmentDelay;
+                const timeDiff = Math.abs(currentTime - adjustedNoteTime);
                 if (timeDiff < minTimeDiff) {
                     minTimeDiff = timeDiff;
                     closestNote = noteData;
@@ -1615,7 +1952,9 @@
             // 计算当前应该显示的帧
             const frameDuration = 1000 / 30; // 30fps
             const preDisplayFrames = 16;
-            const timeDiff = currentTime - closestNote.time;
+            // 应用判定延迟
+            const adjustedNoteTime = closestNote.time + judgmentDelay;
+            const timeDiff = currentTime - adjustedNoteTime;
             
             let currentFrameIndex = -1;
             
@@ -1695,6 +2034,10 @@
                 
                 // 触发判定动画
                 triggerTouchAnimation(note, judgment);
+                
+                // 播放clap音效（带10ms冷却限制）
+                playClapSound();
+                
                 console.log(`${judgment.charAt(0).toUpperCase() + judgment.slice(1)}! Cell ${cellIndex + 1}, Frame ${currentFrameIndex + 1}, Time: ${closestNote.time}ms, Combo: ${combo}`);
             }
         }
@@ -1802,7 +2145,9 @@
                     
                     // 遍历该格子的所有note，找到当前应该显示的帧
                     for (const noteData of cellNotes) {
-                        const timeDiff = currentTimeMs - noteData.time;
+                        // 应用判定延迟：调整note的实际判定时间
+                        const adjustedNoteTime = noteData.time + judgmentDelay;
+                        const timeDiff = currentTimeMs - adjustedNoteTime;
                         const noteKey = `${noteData.cellIndex}_${noteData.time}`;
                         
                         // 检查是否已经错过（超过显示范围且未被判定）
@@ -1817,9 +2162,20 @@
                             
                             updateStatsDisplay();
                             updateComboDisplay();
+                            
+                            // 播放clap音效（带10ms冷却限制）
+                            playClapSound();
+                            
                             console.log(`Miss! Cell ${index + 1}, Time: ${noteData.time}ms`);
                             continue;
                         }
+                        
+                        // 自动播放模式：在note时间点ms触发
+                        if (autoPlayMode && !judgedNotes.has(noteKey) && timeDiff >= 0 && timeDiff < frameDuration) {
+                            handleTouch(index);
+                            break; // 触发后跳出循环
+                        }
+
                         
                         // 如果在预显示范围内（前267ms）
                         if (timeDiff >= -preDisplayTime && timeDiff < 0) {
@@ -1865,9 +2221,65 @@
                 const arrayBuffer = await response.arrayBuffer();
                 audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
                 console.log('音频加载成功');
+                
+                // 加载clap音效
+                await loadClapSound();
             } catch (error) {
                 console.error('音频加载失败:', error);
             }
+        }
+        
+        // 加载clap音效
+        async function loadClapSound() {
+            try {
+                const response = await fetch('./clap.wav');
+                const arrayBuffer = await response.arrayBuffer();
+                clapBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                console.log('Clap音效加载成功');
+            } catch (error) {
+                console.warn('Clap音效加载失败，将不播放判定音效:', error);
+            }
+        }
+        
+        // 播放clap音效（带冷却时间限制，仅自动播放模式）
+        function playClapSound() {
+            // 只在自动播放模式下播放音效
+            if (!autoPlayMode) {
+                return;
+            }
+            
+            if (!clapBuffer || !audioContext) return;
+            
+            const currentTime = Date.now();
+            // 检查是否在冷却时间内
+            if (currentTime - lastClapTime < CLAP_COOLDOWN) {
+                return; // 跳过本次播放
+            }
+            
+            // 更新上次播放时间
+            lastClapTime = currentTime;
+            
+            // 创建并播放音源
+            const clapSource = audioContext.createBufferSource();
+            clapSource.buffer = clapBuffer;
+            clapSource.connect(audioContext.destination);
+            clapSource.start(0);
+        }
+        
+        // 统一音频管理：停止并销毁当前音源
+        function stopAndDestroyAudioSource() {
+            if (audioSource) {
+                try {
+                    // 移除onended回调，防止触发旧的状态更新
+                    audioSource.onended = null;
+                    audioSource.stop();
+                    audioSource.disconnect();
+                } catch (e) {
+                    console.log('停止音源错误:', e);
+                }
+                audioSource = null;
+            }
+            isPlaying = false;
         }
         
         // 播放音频
@@ -1877,76 +2289,78 @@
                 return;
             }
             
-            // 如果正在播放，先暂停
+            // 如果正在播放，则暂停（保存当前时间）
             if (isPlaying && audioSource) {
                 pauseTime = audioContext.currentTime - startTime;
-                try {
-                    audioSource.stop();
-                } catch (e) {
-                    // 忽略错误
-                }
-                audioSource = null;
-                isPlaying = false;
+                stopAndDestroyAudioSource();
                 updatePlayButton();
+                console.log('音频已暂停，时间:', pauseTime);
                 return;
             }
             
-            // 检查是否是从头开始播放（pauseTime为0）
-            const isFreshStart = pauseTime === 0;
-            
-            // 创建新的音源
-            audioSource = audioContext.createBufferSource();
-            audioSource.buffer = audioBuffer;
-            audioSource.connect(audioContext.destination);
-            
-            // 从暂停位置开始播放
-            const offset = pauseTime % audioBuffer.duration;
-            audioSource.start(0, offset);
-            startTime = audioContext.currentTime - offset;
-            
-            // 只有从头开始播放时才重置统计和清除标记
-            if (isFreshStart) {
-                // 重置统计
-                resetStats();
-                
-                // 清除所有判定标记
-                clearJudgmentMarks();
-            }
-            
-            // 创建Combo文本
-            createComboText();
-            
-            audioSource.onended = () => {
-                if (isPlaying) {
-                    isPlaying = false;
-                    pauseTime = 0;
-                    audioSource = null;
-                    updatePlayButton();
-                    // 隐藏进度条
-                    domProgressContainer.style.display = 'none';
-                    progressBarFill.style.width = '0%';
-                    
-                    // 显示游戏结果
-                    showResult();
+            // 如果未播放，则从pauseTime位置开始播放
+            // 短暂延迟确保旧音源完全停止后再创建新音源
+            // 这样可以防止快速连续点击时出现多个音源同时播放
+            setTimeout(() => {
+                // 再次检查是否已经有音源在播放（防止重复调用）
+                if (audioSource && isPlaying) {
+                    console.log('已有音源在播放，跳过本次播放请求');
+                    return;
                 }
-            };
-            
-            isPlaying = true;
-            updatePlayButton();
+                
+                // 检查是否是从头开始播放（pauseTime为0）
+                const isFreshStart = pauseTime === 0;
+                
+                // 创建新的音源
+                audioSource = audioContext.createBufferSource();
+                audioSource.buffer = audioBuffer;
+                audioSource.connect(audioContext.destination);
+                
+                // 从暂停位置开始播放
+                const offset = pauseTime % audioBuffer.duration;
+                audioSource.start(0, offset);
+                // 关键修复：startTime应该基于当前audioContext时间减去偏移量
+                // 这样getCurrentTime()才能返回正确的播放时间
+                startTime = audioContext.currentTime - offset;
+                
+                // 确保进度条始终显示
+                domProgressContainer.style.display = 'flex';
+                
+                // 只有从头开始播放时才重置统计和清除标记
+                if (isFreshStart) {
+                    // 重置统计
+                    resetStats();
+                    
+                    // 清除所有判定标记
+                    clearJudgmentMarks();
+                }
+                
+                // 创建Combo文本
+                createComboText();
+                
+                audioSource.onended = () => {
+                    if (isPlaying) {
+                        isPlaying = false;
+                        pauseTime = 0;
+                        audioSource = null;
+                        updatePlayButton();
+                        // 重置进度条到开头，但不隐藏
+                        progressBarFill.style.width = '0%';
+                        progressBarFill.style.height = '0%';
+                        
+                        // 显示游戏结果
+                        showResult();
+                    }
+                };
+                
+                isPlaying = true;
+                updatePlayButton();
+            }, 10); // 10ms延迟确保旧音源完全停止
         }
         
         // 停止音频（完全停止，重置到开头）
         function stopAudio() {
-            if (audioSource) {
-                try {
-                    audioSource.stop();
-                } catch (e) {
-                    // 忽略错误
-                }
-                audioSource = null;
-            }
-            
-            isPlaying = false;
+            stopAndDestroyAudioSource();
             pauseTime = 0;
             updatePlayButton();
         }
@@ -1969,49 +2383,15 @@
         
         // 重玩功能
         function replay() {
-            // 停止当前播放
-            if (isPlaying && audioSource) {
-                try {
-                    audioSource.stop();
-                } catch (e) {
-                    // 忽略错误
-                }
-                audioSource = null;
-            }
-            
-            // 重置所有状态
-            isPlaying = false;
-            pauseTime = 0;
-            
-            // 重置统计
-            resetStats();
-            
-            // 清除判定标记
-            clearJudgmentMarks();
-            
-            // 清除已判定的note集合
-            judgedNotes.clear();
-            
-            // 隐藏进度条（重玩后会重新显示）
-            domProgressContainer.style.display = 'none';
-            
-            // 更新按钮状态
-            updatePlayButton();
-            
-            console.log('游戏已重置，可以重新开始');
-            
-            // 自动开始播放
-            setTimeout(() => {
-                if (audioContext && audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
-                enterFullscreen();
-                playAudio();
-            }, 100); // 短暂延迟确保重置完成
+            // 直接刷新页面
+            window.location.reload();
         }
         
         // 绑定播放按钮事件
         document.addEventListener('DOMContentLoaded', () => {
+            // 初始化设置面板
+            initSettingsPanel();
+            
             // 播放/暂停按钮
             const playButton = document.getElementById('playButton');
             if (playButton) {
@@ -2021,12 +2401,23 @@
                         audioContext.resume();
                     }
                     
-                    // 尝试进入全屏模式
-                    enterFullscreen();
-                    
                     playAudio();
                 });
             }
+            
+            // 全屏按钮
+            const fullscreenButton = document.getElementById('fullscreenButton');
+            if (fullscreenButton) {
+                fullscreenButton.addEventListener('click', () => {
+                    toggleFullscreen();
+                });
+            }
+            
+            // 监听全屏状态变化，更新按钮图标
+            document.addEventListener('fullscreenchange', updateFullscreenButton);
+            document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+            document.addEventListener('mozfullscreenchange', updateFullscreenButton);
+            document.addEventListener('MSFullscreenChange', updateFullscreenButton);
             
             // 重玩按钮
             const replayButton = document.getElementById('replayButton');
@@ -2042,19 +2433,271 @@
                 backButton.addEventListener('click', () => {
                     // 停止音频播放
                     stopAudio();
-                    
+                            
                     // 退出全屏（如果在全屏模式）
                     if (document.fullscreenElement) {
                         document.exitFullscreen().catch(err => {
                             console.log('退出全屏失败:', err);
                         });
                     }
-                    
+                            
                     // 返回上一页
                     window.history.back();
                 });
             }
         });
+        
+        // 初始化设置面板
+        function initSettingsPanel() {
+            const settingsToggleBtn = document.getElementById('settingsToggleBtn');
+            const settingsPanel = document.getElementById('settingsPanel');
+            const markerSelect = document.getElementById('markerSelect');
+            const markerPreview = document.getElementById('markerPreview');
+            const judgmentDelayInput = document.getElementById('judgmentDelayInput');
+            const loadSongBtn = document.getElementById('loadSongBtn');
+            const loadChartBtn = document.getElementById('loadChartBtn');
+            const songFileInput = document.getElementById('songFileInput');
+            const chartFileInput = document.getElementById('chartFileInput');
+            const autoPlayButton = document.getElementById('autoPlayButton');
+            
+            if (!settingsToggleBtn || !settingsPanel) return;
+            
+            // 从localStorage加载marker设置
+            const savedMarker = localStorage.getItem('selectedMarker');
+            if (savedMarker && markerSelect) {
+                selectedMarker = savedMarker;
+                markerSelect.value = savedMarker;
+                updateMarkerPreview();
+            }
+            
+            // 从localStorage加载判定延迟设置
+            if (judgmentDelayInput) {
+                const savedDelay = localStorage.getItem('judgmentDelay');
+                if (savedDelay !== null) {
+                    const delayValue = parseInt(savedDelay) || 0;
+                    judgmentDelayInput.value = Math.max(-50, Math.min(50, delayValue));
+                    judgmentDelay = delayValue;
+                }
+            }
+            
+            // 从localStorage加载自动播放设置
+            if (autoPlayButton) {
+                const savedAutoPlay = localStorage.getItem('autoPlayMode');
+                if (savedAutoPlay !== null) {
+                    autoPlayMode = savedAutoPlay === 'true';
+                }
+                // 无论是否有保存的设置，都更新UI
+                updateAutoPlayButtonUI();
+            }
+            
+            // 切换设置面板
+            settingsToggleBtn.addEventListener('click', () => {
+                const isOpen = settingsPanel.classList.contains('open');
+                
+                if (isOpen) {
+                    // 关闭面板：先移除open类，等待动画结束后隐藏
+                    settingsPanel.classList.remove('open');
+                    settingsToggleBtn.textContent = '⚙️';
+                    
+                    // 等待动画结束后设置display: none
+                    setTimeout(() => {
+                        if (!settingsPanel.classList.contains('open')) {
+                            settingsPanel.style.display = 'none';
+                        }
+                    }, 300); // 与CSS transition时间一致
+                } else {
+                    // 打开面板：先设置display: block，然后添加open类触发动画
+                    settingsPanel.style.display = 'block';
+                    // 强制重绘以确保动画生效
+                    settingsPanel.offsetHeight;
+                    settingsPanel.classList.add('open');
+                    settingsToggleBtn.textContent = '✖️';
+                }
+            });
+            
+            // 点击面板外部关闭
+            document.addEventListener('click', (e) => {
+                if (!settingsPanel.contains(e.target) && !settingsToggleBtn.contains(e.target)) {
+                    if (settingsPanel.classList.contains('open')) {
+                        settingsPanel.classList.remove('open');
+                        settingsToggleBtn.textContent = '⚙️';
+                        
+                        // 等待动画结束后设置display: none
+                        setTimeout(() => {
+                            if (!settingsPanel.classList.contains('open')) {
+                                settingsPanel.style.display = 'none';
+                            }
+                        }, 300);
+                    }
+                }
+            });
+            
+            // Marker选择器事件
+            if (markerSelect) {
+                markerSelect.addEventListener('change', (e) => {
+                    selectedMarker = e.target.value;
+                    updateMarkerPreview();
+                    updateMarkerPaths();
+                    // 保存到localStorage
+                    localStorage.setItem('selectedMarker', selectedMarker);
+                    console.log(`Marker已更改为: ${selectedMarker}`);
+                    
+                    // 提示用户需要重新加载资源
+                    alert('Marker已更改，请点击重玩按钮重新加载资源以应用更改。');
+                });
+            }
+            
+            // 判定延迟设置事件
+            if (judgmentDelayInput) {
+                judgmentDelayInput.addEventListener('change', (e) => {
+                    let delay = parseInt(e.target.value) || 0;
+                    
+                    // 限制在 -50 到 50 之间
+                    delay = Math.max(-50, Math.min(50, delay));
+                    
+                    e.target.value = delay;
+                    judgmentDelay = delay;
+                    localStorage.setItem('judgmentDelay', delay.toString());
+                    console.log(`判定延迟已保存: ${delay}ms`);
+                });
+            }
+            
+            // 加载歌曲按钮
+            if (loadSongBtn && songFileInput) {
+                loadSongBtn.addEventListener('click', () => {
+                    songFileInput.click();
+                });
+                
+                songFileInput.addEventListener('change', (e) => {
+                    const songFile = e.target.files[0];
+                    if (!songFile) return;
+                    
+                    console.log('选择的歌曲文件:', songFile.name);
+                    
+                    // 读取歌曲文件
+                    const reader = new FileReader();
+                    reader.onload = async (event) => {
+                        try {
+                            const arrayBuffer = event.target.result;
+                            audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                            console.log('歌曲加载成功');
+                            
+                            // 读取MP3元数据（标题、艺术家、封面）
+                            readMP3Metadata(songFile);
+                            
+                            alert('歌曲加载成功！请再次点击📄谱面按钮选择谱面文件。');
+                        } catch (error) {
+                            console.error('歌曲解码失败:', error);
+                            alert('歌曲文件格式不支持或损坏');
+                        }
+                    };
+                    reader.readAsArrayBuffer(songFile);
+                    
+                    // 清空input，允许重复选择同一文件
+                    e.target.value = '';
+                });
+            }
+            
+            // 加载谱面按钮
+            if (loadChartBtn && chartFileInput) {
+                loadChartBtn.addEventListener('click', () => {
+                    chartFileInput.click();
+                });
+                
+                chartFileInput.addEventListener('change', (e) => {
+                    const chartFile = e.target.files[0];
+                    if (!chartFile) return;
+                    
+                    console.log('选择的谱面文件:', chartFile.name);
+                    
+                    // 读取谱面文件
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            const text = event.target.result;
+                            parseChartText(text);
+                            
+                            // 更新UI显示
+                            const songArtistElement = document.getElementById('songArtist');
+                            if (songArtistElement) {
+                                songArtistElement.textContent = '本地文件';
+                            }
+                            
+                            console.log('谱面加载成功');
+                            alert('谱面加载成功！点击播放按钮开始游戏。');
+                        } catch (error) {
+                            console.error('谱面解析失败:', error);
+                            alert('谱面文件格式不正确');
+                        }
+                    };
+                    reader.readAsText(chartFile);
+                    
+                    // 清空input，允许重复选择同一文件
+                    e.target.value = '';
+                });
+            }
+            
+            // 自动播放按钮
+            if (autoPlayButton) {
+                autoPlayButton.addEventListener('click', () => {
+                    autoPlayMode = !autoPlayMode;
+                    localStorage.setItem('autoPlayMode', autoPlayMode.toString());
+                    updateAutoPlayButtonUI();
+                    console.log(`自动播放模式: ${autoPlayMode ? '开启' : '关闭'}`);
+                });
+            }
+        }
+        
+        // 更新自动播放按钮UI
+        function updateAutoPlayButtonUI() {
+            if (autoPlayButton) {
+                if (autoPlayMode) {
+                    autoPlayButton.classList.add('active');
+                } else {
+                    autoPlayButton.classList.remove('active');
+                }
+            }
+            updateAutoPlayUI();
+        }
+        
+        // 更新自动播放UI
+        function updateAutoPlayUI() {
+            if (autoPlayMode) {
+                // 显示Autoplay文本
+                if (autoplayText) {
+                    autoplayText.visible = true;
+                    autoplayText.alpha = 1;
+                }
+            } else {
+                // 显示统计信息
+                const infoContainer = document.getElementById('infoContainer');
+                if (infoContainer) {
+                    infoContainer.style.display = 'block';
+                }
+                
+                // 显示Combo显示
+                if (comboText) {
+                    comboText.visible = true;
+                }
+                if (comboLabelText) {
+                    comboLabelText.visible = true;
+                }
+                
+                // 隐藏Autoplay文本
+                if (autoplayText) {
+                    autoplayText.visible = false;
+                    autoplayText.alpha = 0;
+                }
+            }
+        }
+        
+        // 更新marker预览图
+        function updateMarkerPreview() {
+            const previewImg = document.getElementById('markerPreview');
+            if (previewImg) {
+                previewImg.src = `./markers/${selectedMarker}/preview.png`;
+            }
+        }
         
         // 全屏功能
         function enterFullscreen() {
@@ -2067,6 +2710,40 @@
                 elem.webkitRequestFullscreen();
             } else if (elem.msRequestFullscreen) { /* IE11 */
                 elem.msRequestFullscreen();
+            }
+        }
+        
+        // 退出全屏
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen().catch(err => {
+                    console.log('退出全屏失败:', err);
+                });
+            } else if (document.webkitExitFullscreen) { /* Safari */
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { /* IE11 */
+                document.msExitFullscreen();
+            }
+        }
+        
+        // 切换全屏
+        function toggleFullscreen() {
+            if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+                // 当前是全屏状态，退出全屏
+                exitFullscreen();
+            } else {
+                // 当前不是全屏状态，进入全屏
+                enterFullscreen();
+            }
+        }
+        
+        // 更新全屏按钮图标
+        function updateFullscreenButton() {
+            const fullscreenButton = document.getElementById('fullscreenButton');
+            if (fullscreenButton) {
+                const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+                fullscreenButton.textContent = isFullscreen ? '⛶' : '⛶';
+                fullscreenButton.title = isFullscreen ? '退出全屏' : '全屏';
             }
         }
 
@@ -2214,6 +2891,42 @@
             }
         }
         
+        // 清除指定时间之后的判定标记
+        function clearJudgmentMarksAfterTime(timeMs) {
+            if (!judgmentMarksContainer || !audioBuffer) return;
+            
+            const duration = audioBuffer.duration;
+            const timeSeconds = timeMs / 1000;
+            const progressThreshold = timeSeconds / duration;
+            
+            const marks = judgmentMarksContainer.querySelectorAll('.judgment-mark');
+            let removedCount = 0;
+            
+            marks.forEach(mark => {
+                // 获取标记的位置
+                let markProgress;
+                const isLandscape = window.innerWidth > window.innerHeight;
+                
+                if (isLandscape) {
+                    // 横屏模式：从bottom样式获取
+                    const bottomPercent = parseFloat(mark.style.bottom);
+                    markProgress = bottomPercent / 100;
+                } else {
+                    // 竖屏模式：从left样式获取
+                    const leftPercent = parseFloat(mark.style.left);
+                    markProgress = leftPercent / 100;
+                }
+                
+                // 如果标记位置在目标时间之后，移除它
+                if (markProgress > progressThreshold) {
+                    mark.remove();
+                    removedCount++;
+                }
+            });
+            
+            console.log(`清除了${removedCount}个进度${timeMs}ms之后的判定标记`);
+        }
+        
         // 更新DOM进度条
         function updateProgress() {
             if (!isPlaying || !audioBuffer) return;
@@ -2279,32 +2992,30 @@
                 currentPauseTime: pauseTime
             });
             
-            // 如果正在播放，停止当前音源
-            if (isPlaying && audioSource) {
-                try {
-                    audioSource.stop();
-                } catch (e) {
-                    console.log('停止音源错误:', e);
-                }
-                audioSource = null;
-                isPlaying = false; // 重要：重置播放状态
-            }
+            // 统一调用：停止并销毁当前音源
+            stopAndDestroyAudioSource();
             
             // 设置新的播放位置
             pauseTime = newTime;
             console.log('设置pauseTime为:', pauseTime);
             
-            // 点击进度条后自动开始播放
-            if (!isPlaying) {
-                // 如果AudioContext被挂起，先恢复
-                if (audioContext && audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
-                playAudio();
-            } else {
-                // 如果已经在播放，重新开始播放
-                playAudio();
+            // 关键修复：调整进度后，需要清除所有已判定的note，因为时间已经改变
+            judgedNotes.clear();
+            console.log('已清除所有判定记录');
+            
+            // 智能清理：只清除新时间点之后的判定标记，保留之前的
+            clearJudgmentMarksAfterTime(newTime);
+            
+            // 确保进度条始终显示
+            domProgressContainer.style.display = 'flex';
+            
+            // 如果AudioContext被挂起，先恢复
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
             }
+            
+            // 点击进度条后强制开始播放
+            playAudio();
         });
     </script>
 </body>
