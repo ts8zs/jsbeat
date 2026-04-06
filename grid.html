@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixi.js 4x4 方格</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #2c3e50;
+        }
+        canvas {
+            display: block;
+        }
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+        }
+        .play-button {
+            padding: 12px 30px;
+            font-size: 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .play-button:hover {
+            background-color: #2980b9;
+        }
+        .play-button:active {
+            background-color: #21618c;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button id="playButton" class="play-button">播放</button>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    <script>
+        // 初始化Pixi应用
+        const app = new PIXI.Application({
+            resizeTo: window,
+            backgroundColor: 0x2c3e50,
+            antialias: true
+        });
+        
+        document.body.appendChild(app.view);
+
+        // 创建容器用于放置4x4网格
+        const gridContainer = new PIXI.Container();
+        app.stage.addChild(gridContainer);
+
+        // 定义网格参数
+        const gridSize = 4;
+        let cellSize = 0;
+        let gridWidth = 0;
+        let gridHeight = 0;
+        
+        // 帧动画相关变量
+        const markerBasePath = './markers/thundergate/marker_base/';
+        const touchPerfectPath = './markers/thundergate/touch_perfect/';
+        const totalFrames = 25;
+        const touchPerfectFrames = 15;
+        
+        // 音频相关变量
+        let audioContext = null;
+        let audioBuffer = null;
+        let audioSource = null;
+        let isPlaying = false;
+        let startTime = 0;
+        let pauseTime = 0;
+        const songPath = './songs/Evans/song.mp3';
+        
+        // 谱面数据
+        let chartData = [];
+        const chartPath = './songs/Evans/pt_ext.jmt';
+        
+        // Note对象数组，每个格子一个
+        const notes = [];
+        const totalCells = 16; // 4x4网格
+        
+        // 判定窗口：base0016~18（帧索引15~17）
+        const perfectWindowStart = 15; // base0016
+        const perfectWindowEnd = 17;   // base0018
+
+        // 创建4x4网格
+        function createGrid() {
+            // 保存所有note的引用
+            const savedNotes = notes.length > 0 ? [...notes] : [];
+            
+            // 清除现有的图形
+            gridContainer.removeChildren();
+            
+            // 计算单元格大小，确保网格适配屏幕
+            const maxWidth = app.screen.width * 0.9; // 占屏幕宽度的90%
+            const maxHeight = app.screen.height * 0.9; // 占屏幕高度的90%
+            
+            // 根据屏幕比例决定使用宽度还是高度作为基准
+            if (maxWidth / gridSize < maxHeight / gridSize) {
+                cellSize = Math.floor(maxWidth / gridSize);
+            } else {
+                cellSize = Math.floor(maxHeight / gridSize);
+            }
+            
+            gridWidth = cellSize * gridSize;
+            gridHeight = cellSize * gridSize;
+
+            // 创建网格线
+            for (let i = 0; i <= gridSize; i++) {
+                // 垂直线
+                const vLine = new PIXI.Graphics();
+                vLine.lineStyle(2, 0xffffff, 1);
+                vLine.moveTo(i * cellSize, 0);
+                vLine.lineTo(i * cellSize, gridHeight);
+                gridContainer.addChild(vLine);
+                
+                // 水平线
+                const hLine = new PIXI.Graphics();
+                hLine.lineStyle(2, 0xffffff, 1);
+                hLine.moveTo(0, i * cellSize);
+                hLine.lineTo(gridWidth, i * cellSize);
+                gridContainer.addChild(hLine);
+            }
+            
+            // 为每个单元格添加背景色（可选）
+            for (let row = 0; row < gridSize; row++) {
+                for (let col = 0; col < gridSize; col++) {
+                    const cell = new PIXI.Graphics();
+                    // 交替颜色
+                    const color = (row + col) % 2 === 0 ? 0x3498db : 0x2980b9;
+                    cell.beginFill(color, 0.7);
+                    cell.drawRect(col * cellSize, row * cellSize, cellSize, cellSize);
+                    cell.endFill();
+                    gridContainer.addChildAt(cell, 0); // 放在底层
+                }
+            }
+            
+            // 更新所有note的位置和大小
+            updateAllNotesPosition();
+            
+            // 如果有已存在的notes，重新添加到容器
+            if (savedNotes.length > 0) {
+                notes.length = 0; // 清空当前数组
+                savedNotes.forEach(note => {
+                    notes.push(note);
+                    gridContainer.addChild(note.animation);
+                });
+                updateAllNotesPosition();
+            }
+            
+            // 居底对齐
+            positionGrid();
+        }
+
+        // 解析谱面文件
+        async function loadChart() {
+            try {
+                const response = await fetch(chartPath);
+                const text = await response.text();
+                const lines = text.split('\n');
+                
+                chartData = [];
+                
+                for (const line of lines) {
+                    const trimmed = line.trim();
+                    if (trimmed.startsWith('#')) {
+                        // 格式: #格子编号.毫秒数
+                        const content = trimmed.substring(1);
+                        const dotIndex = content.indexOf('.');
+                        
+                        if (dotIndex !== -1) {
+                            const cellNumber = parseInt(content.substring(0, dotIndex));
+                            const timeMs = parseInt(content.substring(dotIndex + 1));
+                            
+                            // 将格子编号转换为行列 (1-16 -> 0-15)
+                            const cellIndex = cellNumber - 1;
+                            const row = Math.floor(cellIndex / 4);
+                            const col = cellIndex % 4;
+                            
+                            chartData.push({
+                                cellIndex: cellIndex,
+                                row: row,
+                                col: col,
+                                time: timeMs
+                            });
+                        }
+                    }
+                }
+                
+                // 按时间排序
+                chartData.sort((a, b) => a.time - b.time);
+                
+                console.log(`谱面加载成功，共 ${chartData.length} 个note`);
+                
+                // 初始化所有格子的note
+                initNotes();
+                
+            } catch (error) {
+                console.error('谱面加载失败:', error);
+            }
+        }
+        
+        // 初始化所有格子的note对象
+        function initNotes() {
+            for (let i = 0; i < totalCells; i++) {
+                const row = Math.floor(i / 4);
+                const col = i % 4;
+                
+                // 创建帧动画
+                const textures = [];
+                for (let frame = 1; frame <= totalFrames; frame++) {
+                    const frameNumber = String(frame).padStart(4, '0');
+                    const texture = PIXI.Texture.from(`${markerBasePath}base${frameNumber}.png`);
+                    textures.push(texture);
+                }
+                
+                const animation = new PIXI.AnimatedSprite(textures);
+                animation.animationSpeed = 0;
+                animation.loop = false;
+                animation.visible = false;
+                animation.gotoAndStop(0);
+                
+                // 创建touch_perfect动画
+                const touchPerfectTextures = [];
+                for (let frame = 1; frame <= touchPerfectFrames; frame++) {
+                    const frameNumber = String(frame).padStart(4, '0');
+                    const texture = PIXI.Texture.from(`${touchPerfectPath}perfect${frameNumber}.png`);
+                    touchPerfectTextures.push(texture);
+                }
+                
+                const touchPerfectAnimation = new PIXI.AnimatedSprite(touchPerfectTextures);
+                touchPerfectAnimation.animationSpeed = 0.8;
+                touchPerfectAnimation.loop = false;
+                touchPerfectAnimation.visible = false;
+                touchPerfectAnimation.gotoAndStop(0);
+                
+                notes.push({
+                    animation: animation,
+                    touchPerfectAnimation: touchPerfectAnimation,
+                    cellIndex: i,
+                    row: row,
+                    col: col,
+                    currentFrame: 0,
+                    isActive: false,
+                    startTime: 0,
+                    isTouching: false
+                });
+                
+                gridContainer.addChild(animation);
+                gridContainer.addChild(touchPerfectAnimation);
+                
+                // 添加交互事件
+                animation.interactive = true;
+                animation.buttonMode = true;
+                animation.cursor = 'pointer';
+                
+                // 触摸/点击事件
+                animation.on('pointerdown', () => handleTouch(i));
+            }
+            
+            // 更新所有note的位置
+            updateAllNotesPosition();
+        }
+        
+        // 更新所有note的位置和大小
+        function updateAllNotesPosition() {
+            notes.forEach(note => {
+                const animSize = cellSize;
+                note.animation.width = animSize;
+                note.animation.height = animSize;
+                note.animation.x = note.col * cellSize;
+                note.animation.y = note.row * cellSize;
+                
+                // touch_perfect动画也需要同样的位置和大小
+                note.touchPerfectAnimation.width = animSize;
+                note.touchPerfectAnimation.height = animSize;
+                note.touchPerfectAnimation.x = note.col * cellSize;
+                note.touchPerfectAnimation.y = note.row * cellSize;
+            });
+        }
+        
+        // 处理触摸/点击事件
+        function handleTouch(cellIndex) {
+            if (!isPlaying || !audioContext) return;
+            
+            const currentTime = getCurrentTime() * 1000; // 转换为毫秒
+            const note = notes[cellIndex];
+            
+            // 查找该格子最近的note
+            const cellNotes = chartData.filter(n => n.cellIndex === cellIndex);
+            if (cellNotes.length === 0) return;
+            
+            // 找到最近的note
+            let closestNote = null;
+            let minTimeDiff = Infinity;
+            
+            for (const noteData of cellNotes) {
+                const timeDiff = Math.abs(currentTime - noteData.time);
+                if (timeDiff < minTimeDiff) {
+                    minTimeDiff = timeDiff;
+                    closestNote = noteData;
+                }
+            }
+            
+            if (!closestNote) return;
+            
+            // 计算当前应该显示的帧
+            const frameDuration = 1000 / 30; // 30fps
+            const preDisplayFrames = 16;
+            const timeDiff = currentTime - closestNote.time;
+            
+            let currentFrameIndex = -1;
+            
+            // 如果在预显示范围内
+            if (timeDiff >= -(preDisplayFrames * frameDuration) && timeDiff < 0) {
+                currentFrameIndex = Math.floor((preDisplayFrames * frameDuration + timeDiff) / frameDuration);
+            }
+            // 如果在命中点或后续显示范围内
+            else if (timeDiff >= 0) {
+                currentFrameIndex = Math.floor(timeDiff / frameDuration) + preDisplayFrames;
+            }
+            
+            // 判定：如果当前帧在perfect窗口内（base0016~18，即帧15~17）
+            if (currentFrameIndex >= perfectWindowStart && currentFrameIndex <= perfectWindowEnd) {
+                // 触发touch_perfect动画
+                triggerTouchPerfect(note);
+                console.log(`Perfect! Cell ${cellIndex + 1}, Frame ${currentFrameIndex + 1}`);
+            }
+        }
+        
+        // 触发touch_perfect动画
+        function triggerTouchPerfect(note) {
+            // 重置并播放touch_perfect动画
+            note.touchPerfectAnimation.gotoAndStop(0);
+            note.touchPerfectAnimation.visible = true;
+            note.touchPerfectAnimation.play();
+            note.isTouching = true;
+            
+            // 动画播放完后自动隐藏
+            setTimeout(() => {
+                note.touchPerfectAnimation.visible = false;
+                note.touchPerfectAnimation.stop();
+                note.isTouching = false;
+            }, 500); // 约500ms后隐藏（15帧 * 33.33ms ≈ 500ms）
+        }
+        
+        // 根据当前音频时间更新所有note的帧
+        function updateNotes(currentTimeMs) {
+            notes.forEach((note, index) => {
+                // 查找该格子的所有note
+                const cellNotes = chartData.filter(n => n.cellIndex === index);
+                
+                if (cellNotes.length > 0) {
+                    let shouldShow = false;
+                    let frameIndex = 0;
+                    
+                    // 按照30fps计算，每帧约33.33ms
+                    const frameDuration = 1000 / 30; // 约33.33ms每帧
+                    const preDisplayFrames = 16; // 提前16帧开始显示
+                    const preDisplayTime = preDisplayFrames * frameDuration; // 约533ms
+                    const totalAnimFrames = 25; // 总共25帧
+                    const postDisplayFrames = totalAnimFrames - preDisplayFrames; // 后续9帧
+                    const postDisplayTime = postDisplayFrames * frameDuration; // 约300ms
+                    
+                    // 遍历该格子的所有note，找到当前应该显示的帧
+                    for (const noteData of cellNotes) {
+                        const timeDiff = currentTimeMs - noteData.time;
+                        
+                        // 如果在预显示范围内（前267ms）
+                        if (timeDiff >= -preDisplayTime && timeDiff < 0) {
+                            shouldShow = true;
+                            // 计算帧索引：从0到15
+                            frameIndex = Math.floor((preDisplayTime + timeDiff) / frameDuration);
+                            frameIndex = Math.max(0, Math.min(preDisplayFrames - 1, frameIndex));
+                            break;
+                        }
+                        // 如果在命中点或后续显示范围内（0到150ms）
+                        else if (timeDiff >= 0 && timeDiff < postDisplayTime) {
+                            shouldShow = true;
+                            // 计算帧索引：从16到24
+                            frameIndex = Math.floor(timeDiff / frameDuration) + preDisplayFrames;
+                            frameIndex = Math.max(preDisplayFrames, Math.min(totalAnimFrames - 1, frameIndex));
+                            break;
+                        }
+                    }
+                    
+                    if (shouldShow && frameIndex >= 0 && frameIndex < totalAnimFrames) {
+                        note.animation.visible = true;
+                        note.animation.gotoAndStop(frameIndex);
+                    } else {
+                        note.animation.visible = false;
+                    }
+                } else {
+                    // 该格子没有任何note
+                    note.animation.visible = false;
+                }
+            });
+        }
+
+        // 初始化Web Audio API
+        function initAudio() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            loadAudio();
+        }
+        
+        // 加载音频文件
+        async function loadAudio() {
+            try {
+                const response = await fetch(songPath);
+                const arrayBuffer = await response.arrayBuffer();
+                audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                console.log('音频加载成功');
+            } catch (error) {
+                console.error('音频加载失败:', error);
+            }
+        }
+        
+        // 播放音频
+        function playAudio() {
+            if (!audioBuffer) {
+                console.log('音频未加载');
+                return;
+            }
+            
+            // 如果正在播放，先暂停
+            if (isPlaying && audioSource) {
+                pauseTime = audioContext.currentTime - startTime;
+                try {
+                    audioSource.stop();
+                } catch (e) {
+                    // 忽略错误
+                }
+                audioSource = null;
+                isPlaying = false;
+                updatePlayButton();
+                return;
+            }
+            
+            // 创建新的音源
+            audioSource = audioContext.createBufferSource();
+            audioSource.buffer = audioBuffer;
+            audioSource.connect(audioContext.destination);
+            
+            // 从暂停位置开始播放
+            const offset = pauseTime % audioBuffer.duration;
+            audioSource.start(0, offset);
+            startTime = audioContext.currentTime - offset;
+            
+            audioSource.onended = () => {
+                if (isPlaying) {
+                    isPlaying = false;
+                    pauseTime = 0;
+                    audioSource = null;
+                    updatePlayButton();
+                }
+            };
+            
+            isPlaying = true;
+            updatePlayButton();
+        }
+        
+        // 停止音频（完全停止，重置到开头）
+        function stopAudio() {
+            if (audioSource) {
+                try {
+                    audioSource.stop();
+                } catch (e) {
+                    // 忽略错误
+                }
+                audioSource = null;
+            }
+            
+            isPlaying = false;
+            pauseTime = 0;
+            updatePlayButton();
+        }
+        
+        // 获取当前播放时间
+        function getCurrentTime() {
+            if (isPlaying && audioContext) {
+                return audioContext.currentTime - startTime;
+            }
+            return pauseTime;
+        }
+        
+        // 更新播放按钮状态
+        function updatePlayButton() {
+            const button = document.getElementById('playButton');
+            if (button) {
+                button.textContent = isPlaying ? '暂停' : '播放';
+            }
+        }
+        
+        // 绑定播放按钮事件
+        document.addEventListener('DOMContentLoaded', () => {
+            const button = document.getElementById('playButton');
+            if (button) {
+                button.addEventListener('click', () => {
+                    // 首次点击时恢复AudioContext（浏览器策略要求）
+                    if (audioContext && audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+                    playAudio();
+                });
+            }
+        });
+
+
+        // 定位网格使其居底
+        function positionGrid() {
+            gridContainer.x = (app.screen.width - gridWidth) / 2;
+            gridContainer.y = app.screen.height - gridHeight;
+        }
+
+        // 初始创建网格
+        createGrid();
+        
+        // 初始化音频
+        initAudio();
+        
+        // 加载谱面
+        loadChart();
+        
+        // 动画循环 - 同步帧动画和音频
+        app.ticker.add(() => {
+            if (isPlaying && audioContext) {
+                const currentTime = getCurrentTime() * 1000; // 转换为毫秒
+                updateNotes(currentTime);
+            }
+        });
+
+        // 窗口大小改变时重新调整
+        window.addEventListener('resize', () => {
+            createGrid();
+        });
+
+        // 动画循环（如果需要可以添加动画效果）
+        app.ticker.add(() => {
+            // 可以在这里添加动画逻辑
+        });
+    </script>
+</body>
+</html>
