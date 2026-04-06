@@ -9,7 +9,7 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background-color: #2c3e50;
+            background-color: #000000;
             position: relative;
             height: 100vh;
             width: 100vw;
@@ -125,7 +125,7 @@
         const app = new PIXI.Application({
             width: containerSize.width,
             height: containerSize.height,
-            backgroundColor: 0x2c3e50,
+            backgroundColor: 0x000000, // 黑色背景
             antialias: true,
             autoDensity: true,
             resolution: window.devicePixelRatio || 1
@@ -190,6 +190,9 @@
         
         // Start Here提示文本
         let startHereTexts = [];
+        
+        // 每个格子的play_button图片
+        const playButtons = [];
 
         // 创建4x4网格
         function createGrid() {
@@ -226,9 +229,8 @@
             for (let row = 0; row < gridSize; row++) {
                 for (let col = 0; col < gridSize; col++) {
                     const cell = new PIXI.Graphics();
-                    // 交替颜色
-                    const color = (row + col) % 2 === 0 ? 0x3498db : 0x2980b9;
-                    cell.beginFill(color, 0.7);
+                    // 黑色背景
+                    cell.beginFill(0x000000, 0.5);
                     cell.drawRect(col * cellSize, row * cellSize, cellSize, cellSize);
                     cell.endFill();
                     gridContainer.addChildAt(cell, 0); // 放在底层
@@ -248,6 +250,32 @@
                 });
                 updateAllNotesPosition();
             }
+            
+            // 为每个格子添加play_button图片（最顶层）
+            playButtons.length = 0; // 清空数组
+            for (let row = 0; row < gridSize; row++) {
+                for (let col = 0; col < gridSize; col++) {
+                    try {
+                        const buttonTexture = PIXI.Texture.from('./markers/play_button.png');
+                        const button = new PIXI.Sprite(buttonTexture);
+                        button.anchor.set(0.5);
+                        button.x = col * cellSize + cellSize / 2;
+                        button.y = row * cellSize + cellSize / 2;
+                        
+                        // 占满整个格子
+                        button.width = cellSize;
+                        button.height = cellSize;
+                        
+                        gridContainer.addChild(button);
+                        playButtons.push(button);
+                    } catch (e) {
+                        console.log('加载play_button失败:', e);
+                    }
+                }
+            }
+            
+            // 更新Start Here提示（也在顶层）
+            updateStartHereHints();
         }
         
         // 创建进度条
@@ -580,6 +608,26 @@
                 note.touchPerfectAnimation.height = animSize;
                 note.touchPerfectAnimation.x = note.col * cellSize;
                 note.touchPerfectAnimation.y = note.row * cellSize;
+            });
+            
+            // 更新play_button位置
+            playButtons.forEach((button, index) => {
+                const row = Math.floor(index / gridSize);
+                const col = index % gridSize;
+                button.x = col * cellSize + cellSize / 2;
+                button.y = row * cellSize + cellSize / 2;
+                
+                // 占满整个格子
+                button.width = cellSize;
+                button.height = cellSize;
+                
+                // 确保play_button始终在最顶层
+                gridContainer.setChildIndex(button, gridContainer.children.length - 1);
+            });
+            
+            // 也确保Start Here提示在顶层
+            startHereTexts.forEach(text => {
+                gridContainer.setChildIndex(text, gridContainer.children.length - 1);
             });
         }
         
