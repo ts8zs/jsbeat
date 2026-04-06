@@ -899,7 +899,10 @@
         
         // 进度条点击事件
         progressBarWrapper.addEventListener('click', (e) => {
-            if (!audioBuffer) return;
+            if (!audioBuffer) {
+                console.log('音频未加载');
+                return;
+            }
             
             const rect = progressBarWrapper.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
@@ -907,13 +910,39 @@
             const clampedProgress = Math.max(0, Math.min(1, progress));
             
             const duration = audioBuffer.duration;
+            const newTime = duration * clampedProgress;
             
-            // 跳转到对应位置
-            if (isPlaying) {
-                stopAudio();
+            console.log('点击进度条:', {
+                progress: clampedProgress,
+                newTime: newTime,
+                wasPlaying: isPlaying,
+                currentPauseTime: pauseTime
+            });
+            
+            // 如果正在播放，停止当前音源
+            if (isPlaying && audioSource) {
+                try {
+                    audioSource.stop();
+                } catch (e) {
+                    console.log('停止音源错误:', e);
+                }
+                audioSource = null;
+                isPlaying = false; // 重要：重置播放状态
             }
-            pauseTime = duration * clampedProgress;
-            playAudio();
+            
+            // 设置新的播放位置
+            pauseTime = newTime;
+            console.log('设置pauseTime为:', pauseTime);
+            
+            // 如果之前在播放，则继续播放
+            if (isPlaying) {
+                console.log('继续播放');
+                playAudio();
+            } else {
+                // 如果之前是暂停状态，更新按钮显示
+                console.log('保持暂停状态');
+                updatePlayButton();
+            }
         });
     </script>
 </body>
