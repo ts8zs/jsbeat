@@ -31,6 +31,7 @@
             height: 100% !important;
         }
         
+        /* 控制按钮容器样式 */
         .controls {
             position: fixed;
             top: 10px;
@@ -39,6 +40,20 @@
             display: flex;
             gap: 10px;
             align-items: center;
+        }
+        
+        /* 竖屏模式：按钮横向排列 */
+        @media (orientation: portrait) {
+            .controls {
+                flex-direction: row;
+            }
+        }
+        
+        /* 横屏模式：按钮纵向排列 */
+        @media (orientation: landscape) {
+            .controls {
+                flex-direction: column;
+            }
         }
         
         .control-button {
@@ -64,27 +79,56 @@
             background-color: rgba(33, 97, 140, 1);
         }
         
-        /* 判定统计样式 */
-        .stats-container {
+        /* 歌曲信息和判定统计容器样式 */
+        .info-container {
             position: fixed;
             top: 10px;
             left: 10px;
             z-index: 100;
             color: white;
             font-family: Arial, sans-serif;
-            font-size: 16px; /* 增大字体 */
-            line-height: 1.8; /* 增加行距 */
+            max-width: 40vw;
         }
+        
+        .song-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .song-artist {
+            font-size: 16px;
+            opacity: 0.9;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .score-display {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 8px;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+        
         .stat-item {
             margin: 3px 0;
-            font-weight: bold; /* 加粗 */
+            font-weight: bold;
+            font-size: 16px;
+            line-height: 1.8;
         }
         .stat-perfect { color: #FFD700; }
         .stat-great { color: #00BFFF; }
         .stat-good { color: #32CD32; }
         .stat-poor { color: #FF6347; }
         .stat-miss { color: #808080; }
-        .stat-maxcombo { color: #FF69B4; } /* Max Combo用粉色 */
+        .stat-maxcombo { color: #FF69B4; }
         
         /* 进度条样式 */
         .progress-container {
@@ -222,16 +266,20 @@
         <!-- Pixi画布将在这里创建 -->
     </div>
     
-    <div class="stats-container" id="statsContainer">
+    <div class="info-container" id="infoContainer">
+        <div class="song-title" id="songTitle">加载中...</div>
+        <div class="song-artist" id="songArtist"></div>
+        <div class="score-display" id="scoreDisplay">0</div>
+        <div class="stat-item stat-maxcombo">Max Combo: <span id="maxComboCount">0</span></div>
         <div class="stat-item stat-perfect">Perfect: <span id="perfectCount">0</span></div>
         <div class="stat-item stat-great">Great: <span id="greatCount">0</span></div>
         <div class="stat-item stat-good">Good: <span id="goodCount">0</span></div>
         <div class="stat-item stat-poor">Poor: <span id="poorCount">0</span></div>
         <div class="stat-item stat-miss">Miss: <span id="missCount">0</span></div>
-        <div class="stat-item stat-maxcombo">Max Combo: <span id="maxComboCount">0</span></div>
     </div>
     
     <div class="controls">
+        <button id="backButton" class="control-button" title="返回">⬅️</button>
         <button id="replayButton" class="control-button" title="重玩">🔄</button>
         <button id="playButton" class="control-button" title="播放">▶️</button>
     </div>
@@ -310,6 +358,7 @@
         // Combo和判定统计
         let combo = 0;
         let maxCombo = 0;
+        let score = 0; // 当前分数
         const stats = {
             perfect: 0,
             great: 0,
@@ -317,6 +366,12 @@
             poor: 0,
             miss: 0
         };
+        
+        // 游戏结束显示文本
+        let resultScoreText = null;
+        let resultMaxComboText = null;
+        let resultGradeText = null;
+        let isGameEnded = false; // 标记游戏是否结束
         
         // Combo显示文本
         let comboText = null;
@@ -326,6 +381,52 @@
         // 专辑封面相关变量
         let albumCoverSprite = null;
         let songDirectory = './songs/Evans/'; // 默认歌曲目录
+        let songName = 'Evans'; // 默认歌曲名称
+        let artistName = ''; // 默认歌手名称（Composer）
+        
+        // 解析manifest.txt文件
+        async function loadManifest() {
+            try {
+                const manifestPath = `${songDirectory}manifest.txt`;
+                const response = await fetch(manifestPath);
+                const text = await response.text();
+                
+                // 解析Name字段
+                const nameMatch = text.match(/^Name=(.+)$/m);
+                if (nameMatch && nameMatch[1]) {
+                    songName = nameMatch[1].trim();
+                }
+                
+                // 解析Composer字段
+                const composerMatch = text.match(/^Composer=(.+)$/m);
+                if (composerMatch && composerMatch[1]) {
+                    artistName = composerMatch[1].trim();
+                }
+                
+                console.log(`歌曲信息: ${songName} - ${artistName}`);
+                
+                // 更新UI显示
+                updateSongInfo();
+                
+            } catch (error) {
+                console.warn('无法加载manifest.txt，使用默认值:', error);
+                updateSongInfo();
+            }
+        }
+        
+        // 更新歌曲信息显示
+        function updateSongInfo() {
+            const songTitleElement = document.getElementById('songTitle');
+            const songArtistElement = document.getElementById('songArtist');
+            
+            if (songTitleElement) {
+                songTitleElement.textContent = songName || '未知曲目';
+            }
+            
+            if (songArtistElement) {
+                songArtistElement.textContent = artistName || '';
+            }
+        }
         
         // 从 URL 参数获取曲目和难度
         let selectedMarker = 'thundergate'; // 默认marker，从URL参数获取
@@ -991,6 +1092,209 @@
             document.getElementById('poorCount').textContent = stats.poor;
             document.getElementById('missCount').textContent = stats.miss;
             document.getElementById('maxComboCount').textContent = maxCombo;
+            
+            // 更新分数显示
+            updateScore();
+        }
+        
+        // 计算并更新分数
+        function updateScore() {
+            const totalNotes = chartData.length;
+            if (totalNotes === 0) {
+                score = 0;
+            } else {
+                // 分数计算公式：（PERFECT數+GREAT數×70%+GOOD數×40%+POOR數×10%）÷總note數×1000000
+                const weightedSum = stats.perfect + 
+                                   stats.great * 0.7 + 
+                                   stats.good * 0.4 + 
+                                   stats.poor * 0.1;
+                score = Math.floor((weightedSum / totalNotes) * 1000000);
+            }
+            
+            // 格式化分数显示（添加千位分隔符）
+            const scoreElement = document.getElementById('scoreDisplay');
+            if (scoreElement) {
+                scoreElement.textContent = score.toLocaleString();
+            }
+        }
+        
+        // 根据分数计算等级
+        function calculateGrade(score) {
+            if (score >= 1000000) return 'EXCELLENT';
+            if (score >= 980000) return 'SSS';
+            if (score >= 950000) return 'SS';
+            if (score >= 900000) return 'S';
+            if (score >= 850000) return 'A';
+            if (score >= 800000) return 'B';
+            if (score >= 700000) return 'C';
+            if (score >= 500000) return 'D';
+            return 'E';
+        }
+        
+        // 获取等级的颜色
+        function getGradeColor(grade) {
+            switch(grade) {
+                case 'EXCELLENT': return '#FFD700'; // 金色
+                case 'SSS': return '#FF69B4'; // 粉色
+                case 'SS': return '#FF4500'; // 橙红色
+                case 'S': return '#FFD700'; // 金色
+                case 'A': return '#32CD32'; // 绿色
+                case 'B': return '#00BFFF'; // 蓝色
+                case 'C': return '#FFFF00'; // 黄色
+                case 'D': return '#FFA500'; // 橙色
+                case 'E': return '#808080'; // 灰色
+                default: return '#FFFFFF';
+            }
+        }
+        
+        // 创建游戏结果显示
+        function createResultDisplay() {
+            if (!resultGradeText) {
+                // Grade标题
+                const gradeLabel = new PIXI.Text('GRADE', {
+                    fontFamily: 'Arial',
+                    fontSize: 36,
+                    fontWeight: 'bold',
+                    fill: 0xffffff,
+                    stroke: 0x000000,
+                    strokeThickness: 4,
+                    align: 'center'
+                });
+                gradeLabel.anchor.set(0.5);
+                gradeLabel.x = app.screen.width / 2;
+                gradeLabel.y = app.screen.height / 2 - 120;
+                gradeLabel.visible = false;
+                gridContainer.addChild(gradeLabel);
+                
+                // Grade数值
+                resultGradeText = new PIXI.Text('E', {
+                    fontFamily: 'Arial',
+                    fontSize: 100,
+                    fontWeight: 'bold',
+                    fill: '#808080',
+                    stroke: 0x000000,
+                    strokeThickness: 8,
+                    align: 'center'
+                });
+                resultGradeText.anchor.set(0.5);
+                resultGradeText.x = app.screen.width / 2;
+                resultGradeText.y = app.screen.height / 2 - 60;
+                resultGradeText.visible = false;
+                gridContainer.addChild(resultGradeText);
+                
+                // 分数标题
+                const scoreLabel = new PIXI.Text('SCORE', {
+                    fontFamily: 'Arial',
+                    fontSize: 36,
+                    fontWeight: 'bold',
+                    fill: 0xffffff,
+                    stroke: 0x000000,
+                    strokeThickness: 4,
+                    align: 'center'
+                });
+                scoreLabel.anchor.set(0.5);
+                scoreLabel.x = app.screen.width / 2;
+                scoreLabel.y = app.screen.height / 2 + 20;
+                scoreLabel.visible = false;
+                gridContainer.addChild(scoreLabel);
+                
+                // 分数数值
+                resultScoreText = new PIXI.Text('0', {
+                    fontFamily: 'Arial',
+                    fontSize: 80,
+                    fontWeight: 'bold',
+                    fill: '#FFD700',
+                    stroke: 0x000000,
+                    strokeThickness: 6,
+                    align: 'center'
+                });
+                resultScoreText.anchor.set(0.5);
+                resultScoreText.x = app.screen.width / 2;
+                resultScoreText.y = app.screen.height / 2 + 80;
+                resultScoreText.visible = false;
+                gridContainer.addChild(resultScoreText);
+                
+                // Max Combo标题
+                const maxComboLabel = new PIXI.Text('MAX COMBO', {
+                    fontFamily: 'Arial',
+                    fontSize: 36,
+                    fontWeight: 'bold',
+                    fill: 0xffffff,
+                    stroke: 0x000000,
+                    strokeThickness: 4,
+                    align: 'center'
+                });
+                maxComboLabel.anchor.set(0.5);
+                maxComboLabel.x = app.screen.width / 2;
+                maxComboLabel.y = app.screen.height / 2 + 140;
+                maxComboLabel.visible = false;
+                gridContainer.addChild(maxComboLabel);
+                
+                // Max Combo数值
+                resultMaxComboText = new PIXI.Text('0', {
+                    fontFamily: 'Arial',
+                    fontSize: 80,
+                    fontWeight: 'bold',
+                    fill: '#FF69B4',
+                    stroke: 0x000000,
+                    strokeThickness: 6,
+                    align: 'center'
+                });
+                resultMaxComboText.anchor.set(0.5);
+                resultMaxComboText.x = app.screen.width / 2;
+                resultMaxComboText.y = app.screen.height / 2 + 200;
+                resultMaxComboText.visible = false;
+                gridContainer.addChild(resultMaxComboText);
+            }
+        }
+        
+        // 显示游戏结果
+        function showResult() {
+            isGameEnded = true;
+            
+            // 隐藏Combo显示
+            if (comboText) {
+                comboText.visible = false;
+                comboText.alpha = 0;
+            }
+            if (comboLabelText) {
+                comboLabelText.visible = false;
+                comboLabelText.alpha = 0;
+            }
+            
+            // 创建并显示结果
+            createResultDisplay();
+            
+            // 更新分数显示
+            if (resultScoreText) {
+                resultScoreText.text = score.toLocaleString();
+                resultScoreText.visible = true;
+            }
+            
+            // 更新Max Combo显示
+            if (resultMaxComboText) {
+                resultMaxComboText.text = maxCombo.toString();
+                resultMaxComboText.visible = true;
+            }
+            
+            // 计算并显示等级
+            const grade = calculateGrade(score);
+            if (resultGradeText) {
+                resultGradeText.text = grade;
+                resultGradeText.fill = getGradeColor(grade);
+                resultGradeText.visible = true;
+            }
+            
+            console.log(`游戏结束! 分数: ${score}, Max Combo: ${maxCombo}, Grade: ${grade}`);
+        }
+        
+        // 隐藏游戏结果
+        function hideResult() {
+            isGameEnded = false;
+            
+            if (resultScoreText) resultScoreText.visible = false;
+            if (resultMaxComboText) resultMaxComboText.visible = false;
+            if (resultGradeText) resultGradeText.visible = false;
         }
         
         // 重置统计
@@ -998,11 +1302,13 @@
             combo = 0;
             maxCombo = 0;
             lastCombo = 0;
+            score = 0; // 重置分数
             stats.perfect = 0;
             stats.great = 0;
             stats.good = 0;
             stats.poor = 0;
             stats.miss = 0;
+            isGameEnded = false; // 重置游戏结束标记
             updateStatsDisplay();
             if (comboText) {
                 comboText.text = '0';
@@ -1014,6 +1320,15 @@
                 comboLabelText.visible = false;
                 comboLabelText.alpha = 0;
             }
+            
+            // 重置分数显示
+            const scoreElement = document.getElementById('scoreDisplay');
+            if (scoreElement) {
+                scoreElement.textContent = '0';
+            }
+            
+            // 隐藏游戏结果
+            hideResult();
         }
         
 
@@ -1610,6 +1925,9 @@
                     // 隐藏进度条
                     domProgressContainer.style.display = 'none';
                     progressBarFill.style.width = '0%';
+                    
+                    // 显示游戏结果
+                    showResult();
                 }
             };
             
@@ -1717,6 +2035,25 @@
                     replay();
                 });
             }
+            
+            // 返回按钮
+            const backButton = document.getElementById('backButton');
+            if (backButton) {
+                backButton.addEventListener('click', () => {
+                    // 停止音频播放
+                    stopAudio();
+                    
+                    // 退出全屏（如果在全屏模式）
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen().catch(err => {
+                            console.log('退出全屏失败:', err);
+                        });
+                    }
+                    
+                    // 返回上一页
+                    window.history.back();
+                });
+            }
         });
         
         // 全屏功能
@@ -1746,8 +2083,10 @@
             // 更新粒子效果
             updateParticles();
             
-            // 更新Combo显示
-            updateComboDisplay();
+            // 如果游戏未结束，更新Combo显示
+            if (!isGameEnded) {
+                updateComboDisplay();
+            }
             
             if (isPlaying && audioContext) {
                 const currentTime = getCurrentTime() * 1000; // 转换为毫秒
@@ -1804,6 +2143,9 @@
                 `;
                 loadingDiv.innerHTML = '<div>正在加载资源...</div><div id="loadingPercent" style="margin-top: 10px; font-size: 14px;">0%</div>';
                 document.body.appendChild(loadingDiv);
+                
+                // 首先加载manifest.txt获取歌曲信息
+                await loadManifest();
                 
                 // 预加载所有资源
                 await preloadAllResources();
