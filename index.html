@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>jubeat 模拟器 - 曲目选择</title>
+    <title>JSBeat - 曲目选择</title>
     <style>
         * {
             margin: 0;
@@ -211,11 +211,69 @@
             font-size: 1.2em;
             padding: 50px;
         }
+        
+        .marker-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        
+        .marker-label {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #333;
+            white-space: nowrap;
+        }
+        
+        .marker-select {
+            padding: 8px 12px;
+            font-size: 0.9em;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.3s;
+            font-weight: bold;
+        }
+        
+        .marker-select:focus {
+            border-color: #764ba2;
+        }
+        
+        .marker-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid #ddd;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>JSBeat</h1>
+        
+        <!-- Marker选择器 -->
+        <div class="marker-selector">
+            <span class="marker-label">Marker:</span>
+            <select id="markerSelect" class="marker-select">
+                <option value="thundergate">Thundergate</option>
+                <option value="flower">Flower</option>
+                <option value="knit">Knit</option>
+                <option value="ripples">Ripples</option>
+            </select>
+            <img id="markerPreview" class="marker-preview" src="./markers/thundergate/preview.png" alt="Marker Preview">
+        </div>
         
         <div class="search-box">
             <input type="text" id="searchInput" class="search-input" placeholder="搜索曲目名称、作曲家...">
@@ -232,6 +290,7 @@
         let songs = [];
         let selectedSong = null;
         let selectedDifficulty = null;
+        let selectedMarker = 'thundergate'; // 默认marker
         
         // 难度对应的谱面文件
         const difficultyFiles = {
@@ -501,7 +560,8 @@
             const params = new URLSearchParams({
                 song: song.id,
                 difficulty: difficulty,
-                chart: chartFile
+                chart: chartFile,
+                marker: selectedMarker
             });
             
             // 直接跳转到游戏页面
@@ -521,15 +581,39 @@
                 const params = new URLSearchParams({
                     song: selectedSong.id,
                     difficulty: selectedDifficulty,
-                    chart: chartFile
+                    chart: chartFile,
+                    marker: selectedMarker
                 });
                 
                 window.location.href = `grid.html?${params.toString()}`;
             }
         });
         
+        // Marker选择器事件
+        document.getElementById('markerSelect').addEventListener('change', (e) => {
+            selectedMarker = e.target.value;
+            updateMarkerPreview();
+            // 保存到localStorage
+            localStorage.setItem('selectedMarker', selectedMarker);
+        });
+        
+        // 更新marker预览图
+        function updateMarkerPreview() {
+            const previewImg = document.getElementById('markerPreview');
+            previewImg.src = `./markers/${selectedMarker}/preview.png`;
+        }
+        
         // 页面加载时初始化
-        window.addEventListener('DOMContentLoaded', loadSongs);
+        window.addEventListener('DOMContentLoaded', () => {
+            // 从localStorage恢复上次选择的marker
+            const savedMarker = localStorage.getItem('selectedMarker');
+            if (savedMarker) {
+                selectedMarker = savedMarker;
+                document.getElementById('markerSelect').value = savedMarker;
+                updateMarkerPreview();
+            }
+            loadSongs();
+        });
     </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixi.js 4x4 方格</title>
+    <title>JSBeat</title>
     <style>
         body {
             margin: 0;
@@ -34,61 +34,186 @@
         .controls {
             position: fixed;
             top: 10px;
-            left: 10px;
+            right: 10px;
             z-index: 100;
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
-        .play-button {
-            padding: 8px 20px;
-            font-size: 14px;
-            background-color: #3498db;
+        
+        .control-button {
+            width: 50px; /* 增大按钮 */
+            height: 50px; /* 增大按钮 */
+            background-color: rgba(52, 152, 219, 0.8);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 50%;
             cursor: pointer;
             transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px; /* 增大图标 */
         }
-        .play-button:hover {
-            background-color: #2980b9;
+        
+        .control-button:hover {
+            background-color: rgba(41, 128, 185, 0.9);
         }
-        .play-button:active {
-            background-color: #21618c;
+        
+        .control-button:active {
+            background-color: rgba(33, 97, 140, 1);
         }
+        
+        /* 判定统计样式 */
+        .stats-container {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 16px; /* 增大字体 */
+            line-height: 1.8; /* 增加行距 */
+        }
+        .stat-item {
+            margin: 3px 0;
+            font-weight: bold; /* 加粗 */
+        }
+        .stat-perfect { color: #FFD700; }
+        .stat-great { color: #00BFFF; }
+        .stat-good { color: #32CD32; }
+        .stat-poor { color: #FF6347; }
+        .stat-miss { color: #808080; }
+        .stat-maxcombo { color: #FF69B4; } /* Max Combo用粉色 */
         
         /* 进度条样式 */
         .progress-container {
             position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
             z-index: 100;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 5px;
         }
         
-        .progress-bar-wrapper {
-            width: 60vw;
-            max-width: 800px;
-            height: 8px;
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 4px;
-            cursor: pointer;
-            position: relative;
+        /* 竖屏模式：进度条在顶部横向显示 */
+        @media (orientation: portrait) {
+            .progress-container {
+                top: 0; /* 页面最顶端 */
+                left: 0;
+                width: 100vw;
+                height: 12px; /* 增加高度 */
+                flex-direction: row;
+            }
+            
+            .progress-bar-wrapper {
+                width: 100%;
+                height: 12px; /* 增加高度 */
+                background-color: rgba(255, 255, 255, 0.3);
+                cursor: pointer;
+                position: relative;
+            }
+            
+            .progress-bar-fill {
+                height: 100%;
+                background-color: rgba(255, 215, 0, 0.8); /* 金黄色 */
+                width: 0%;
+                transition: width 0.1s linear;
+            }
+            
+            /* 判定标记点容器 */
+            .judgment-marks {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+            }
+            
+            /* 判定标记点 */
+            .judgment-mark {
+                position: absolute;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                opacity: 0.8;
+            }
+            
+            .mark-miss,
+            .mark-poor {
+                background-color: #808080; /* 灰色 */
+            }
+            
+            .mark-good {
+                background-color: #32CD32; /* 绿色 */
+            }
+            
+            .mark-great {
+                background-color: #00BFFF; /* 蓝色 */
+            }
         }
         
-        .progress-bar-fill {
-            height: 100%;
-            background-color: rgba(52, 152, 219, 0.8);
-            border-radius: 4px;
-            width: 0%;
-            transition: width 0.1s linear;
-        }
-        
-        .progress-time {
-            color: white;
-            font-size: 12px;
-            font-family: Arial, sans-serif;
+        /* 横屏模式：进度条在左侧竖向显示 */
+        @media (orientation: landscape) {
+            .progress-container {
+                top: 0; /* 页面最顶端 */
+                left: 0; /* 页面最左端 */
+                width: 12px; /* 增加宽度 */
+                height: 100vh; /* 占满整个高度 */
+                flex-direction: column;
+            }
+            
+            .progress-bar-wrapper {
+                width: 12px; /* 增加宽度 */
+                height: 100%;
+                background-color: rgba(255, 255, 255, 0.3);
+                cursor: pointer;
+                position: relative;
+                display: flex;
+                align-items: flex-end;
+            }
+            
+            .progress-bar-fill {
+                width: 100%;
+                height: 0%;
+                background-color: rgba(255, 215, 0, 0.8); /* 金黄色 */
+                transition: height 0.1s linear;
+            }
+            
+            /* 判定标记点容器 */
+            .judgment-marks {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+            }
+            
+            /* 判定标记点 */
+            .judgment-mark {
+                position: absolute;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                opacity: 0.8;
+            }
+            
+            .mark-miss,
+            .mark-poor {
+                background-color: #808080; /* 灰色 */
+            }
+            
+            .mark-good {
+                background-color: #32CD32; /* 绿色 */
+            }
+            
+            .mark-great {
+                background-color: #00BFFF; /* 蓝色 */
+            }
         }
     </style>
 </head>
@@ -97,15 +222,25 @@
         <!-- Pixi画布将在这里创建 -->
     </div>
     
+    <div class="stats-container" id="statsContainer">
+        <div class="stat-item stat-perfect">Perfect: <span id="perfectCount">0</span></div>
+        <div class="stat-item stat-great">Great: <span id="greatCount">0</span></div>
+        <div class="stat-item stat-good">Good: <span id="goodCount">0</span></div>
+        <div class="stat-item stat-poor">Poor: <span id="poorCount">0</span></div>
+        <div class="stat-item stat-miss">Miss: <span id="missCount">0</span></div>
+        <div class="stat-item stat-maxcombo">Max Combo: <span id="maxComboCount">0</span></div>
+    </div>
+    
     <div class="controls">
-        <button id="playButton" class="play-button">播放</button>
+        <button id="replayButton" class="control-button" title="重玩">🔄</button>
+        <button id="playButton" class="control-button" title="播放">▶️</button>
     </div>
     
     <div class="progress-container" id="progressContainer" style="display: none;">
         <div class="progress-bar-wrapper" id="progressBarWrapper">
             <div class="progress-bar-fill" id="progressBarFill"></div>
+            <div class="judgment-marks" id="judgmentMarks"></div>
         </div>
-        <div class="progress-time" id="progressTime">0:00 / 0:00</div>
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
@@ -136,6 +271,10 @@
         // 创建容器用于放置4x4网格
         const gridContainer = new PIXI.Container();
         app.stage.addChild(gridContainer);
+        
+        // 创建专辑封面背景容器（在最底层）
+        const albumCoverContainer = new PIXI.Container();
+        app.stage.addChildAt(albumCoverContainer, 0);
 
         // 定义网格参数
         const gridSize = 4;
@@ -144,8 +283,11 @@
         let gridHeight = 0;
         
         // 帧动画相关变量
-        const markerBasePath = './markers/thundergate/marker_base/';
-        const touchPerfectPath = './markers/thundergate/touch_perfect/';
+        let markerBasePath;
+        let touchPerfectPath;
+        let touchGreatPath;
+        let touchGoodPath;
+        let touchPoorPath;
         const totalFrames = 25;
         const touchPerfectFrames = 15;
         
@@ -162,16 +304,55 @@
         let chartData = [];
         let chartPath = './songs/Evans/pt_ext.jmt'; // 默认值
         
+        // 已判定的note集合（用于防止重复判定）
+        const judgedNotes = new Set();
+        
+        // Combo和判定统计
+        let combo = 0;
+        let maxCombo = 0;
+        const stats = {
+            perfect: 0,
+            great: 0,
+            good: 0,
+            poor: 0,
+            miss: 0
+        };
+        
+        // Combo显示文本
+        let comboText = null;
+        let comboLabelText = null;
+        let lastCombo = 0; // 记录上一次的combo值，用于检测变化
+        
+        // 专辑封面相关变量
+        let albumCoverSprite = null;
+        let songDirectory = './songs/Evans/'; // 默认歌曲目录
+        
         // 从 URL 参数获取曲目和难度
+        let selectedMarker = 'thundergate'; // 默认marker，从URL参数获取
+        
         function parseURLParams() {
             const params = new URLSearchParams(window.location.search);
             const song = params.get('song');
             const difficulty = params.get('difficulty');
             const chart = params.get('chart');
+            const marker = params.get('marker');
+            
+            if (marker) {
+                selectedMarker = marker;
+                console.log(`使用Marker: ${selectedMarker}`);
+            }
+            
+            // 根据选中的marker设置路径
+            markerBasePath = `./markers/${selectedMarker}/marker_base/`;
+            touchPerfectPath = `./markers/${selectedMarker}/touch_perfect/`;
+            touchGreatPath = `./markers/${selectedMarker}/touch_great/`;
+            touchGoodPath = `./markers/${selectedMarker}/touch_good/`;
+            touchPoorPath = `./markers/${selectedMarker}/touch_poor/`;
             
             if (song && chart) {
                 songPath = `./songs/${song}/song.mp3`;
                 chartPath = `./songs/${song}/${chart}`;
+                songDirectory = `./songs/${song}/`; // 保存歌曲目录路径
                 console.log(`加载曲目: ${song}, 难度: ${difficulty}, 谱面: ${chart}`);
                 console.log(`歌曲路径: ${songPath}`);
                 console.log(`谱面路径: ${chartPath}`);
@@ -184,9 +365,28 @@
         const notes = [];
         const totalCells = 16; // 4x4网格
         
-        // 判定窗口：base0016~18（帧索引15~17）
-        const perfectWindowStart = 15; // base0016
-        const perfectWindowEnd = 17;   // base0018
+        // 判定窗口（帧编号1-based，代码中使用索引0-based）
+        // Perfect: 帧14~18 (索引13~17)
+        const perfectWindowStart = 13; // 帧14
+        const perfectWindowEnd = 17;   // 帧18
+        
+        // Great: 帧11~13 (索引10~12) 和 帧18~20 (索引17~19)
+        const greatWindows = [
+            { start: 10, end: 12 },  // 帧11~13
+            { start: 17, end: 19 }   // 帧18~20
+        ];
+        
+        // Good: 帧8~10 (索引7~9) 和 帧21~23 (索引20~22)
+        const goodWindows = [
+            { start: 7, end: 9 },    // 帧8~10
+            { start: 20, end: 22 }   // 帧21~23
+        ];
+        
+        // Poor: 帧1~9 (索引0~8) 和 帧24~25 (索引23~24)
+        const poorWindows = [
+            { start: 0, end: 8 },    // 帧1~9
+            { start: 23, end: 24 }   // 帧24~25
+        ];
         
         // Start Here提示文本
         let startHereTexts = [];
@@ -194,13 +394,336 @@
         // 每个格子的play_button图片
         const playButtons = [];
 
+        // 资源加载状态
+        let resourcesLoaded = false;
+        const loadingProgress = { total: 0, loaded: 0 };
+        
+        // 粒子系统
+        const particles = [];
+        const particleContainer = new PIXI.Container();
+        gridContainer.addChild(particleContainer);
+        
+        // 加载按钮纹理
+        let playButtonUpTexture = null;
+        let playButtonDownTexture = null;
+        
+        // 多点触摸追踪
+        const activeTouches = new Map(); // pointerId -> { row, col, button }
+        
+        // 创建粒子效果
+        function spawnParticles(x, y, color = 0xffffff) {
+            const particleCount = 8;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = new PIXI.Graphics();
+                
+                // 绘制小圆点
+                particle.beginFill(color);
+                particle.drawCircle(0, 0, 3);
+                particle.endFill();
+                
+                // 设置初始位置
+                particle.x = x;
+                particle.y = y;
+                
+                // 随机速度和方向
+                const angle = (Math.PI * 2 / particleCount) * i + (Math.random() - 0.5);
+                const speed = 2 + Math.random() * 3;
+                particle.vx = Math.cos(angle) * speed;
+                particle.vy = Math.sin(angle) * speed;
+                
+                // 生命周期
+                particle.life = 1.0;
+                particle.decay = 0.02 + Math.random() * 0.02;
+                
+                particleContainer.addChild(particle);
+                particles.push(particle);
+            }
+        }
+        
+        // 更新粒子
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const particle = particles[i];
+                
+                // 更新位置
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                
+                // 衰减
+                particle.life -= particle.decay;
+                particle.alpha = particle.life;
+                
+                // 缩小
+                particle.scale.set(particle.life);
+                
+                // 移除死亡粒子
+                if (particle.life <= 0) {
+                    particleContainer.removeChild(particle);
+                    particle.destroy();
+                    particles.splice(i, 1);
+                }
+            }
+        }
+        
+        // 加载专辑封面
+        async function loadAlbumCover() {
+            try {
+                // 尝试加载 pic.png 或 pic.jpg
+                let coverPath = null;
+                
+                // 先尝试加载 png
+                try {
+                    const pngResponse = await fetch(`${songDirectory}pic.png`);
+                    if (pngResponse.ok) {
+                        coverPath = `${songDirectory}pic.png`;
+                    }
+                } catch (e) {
+                    // 如果 png 不存在，尝试 jpg
+                }
+                
+                // 如果 png 不存在，尝试 jpg
+                if (!coverPath) {
+                    try {
+                        const jpgResponse = await fetch(`${songDirectory}pic.jpg`);
+                        if (jpgResponse.ok) {
+                            coverPath = `${songDirectory}pic.jpg`;
+                        }
+                    } catch (e) {
+                        console.log('未找到专辑封面图片');
+                        return;
+                    }
+                }
+                
+                if (!coverPath) {
+                    console.log('未找到专辑封面图片');
+                    return;
+                }
+                
+                console.log(`加载专辑封面: ${coverPath}`);
+                
+                // 加载纹理
+                const texture = await PIXI.Assets.load(coverPath);
+                
+                // 创建精灵
+                albumCoverSprite = new PIXI.Sprite(texture);
+                
+                // 设置锚点为中心
+                albumCoverSprite.anchor.set(0.5);
+                
+                // 调整大小以适应屏幕
+                updateAlbumCoverSize();
+                
+                // 添加模糊滤镜
+                const blurFilter = new PIXI.BlurFilter();
+                blurFilter.blur = 5; // 模糊程度
+                albumCoverSprite.filters = [blurFilter];
+                // 降低cover亮度
+                albumCoverSprite.tint = 0x999999; // 黑色乘法
+                
+                
+                // 添加到最底层容器
+                albumCoverContainer.addChild(albumCoverSprite);
+                
+                console.log('专辑封面加载成功');
+                
+            } catch (error) {
+                console.error('加载专辑封面失败:', error);
+            }
+        }
+        
+        // 更新专辑封面大小
+        function updateAlbumCoverSize() {
+            if (!albumCoverSprite) return;
+            
+            // 让封面覆盖整个屏幕
+            const screenWidth = app.screen.width;
+            const screenHeight = app.screen.height;
+            
+            // 计算缩放比例，保持宽高比并覆盖整个屏幕
+            const scaleX = screenWidth / albumCoverSprite.texture.width;
+            const scaleY = screenHeight / albumCoverSprite.texture.height;
+            const scale = Math.max(scaleX, scaleY);
+            
+            albumCoverSprite.scale.set(scale);
+            albumCoverSprite.x = screenWidth / 2;
+            albumCoverSprite.y = screenHeight / 2;
+        }
+        
+        // 预加载所有资源
+        async function preloadAllResources() {
+            console.log('开始预加载资源...');
+            
+            const resourcesToLoad = [];
+            
+            // 1. 加载play_button图片
+            resourcesToLoad.push(
+                { alias: 'playButtonUp', src: './markers/play_button.png' },
+                { alias: 'playButtonDown', src: './markers/play_button_down.png' }
+            );
+            
+            // 2. 加载marker基础动画帧 (25帧)
+            for (let frame = 1; frame <= totalFrames; frame++) {
+                const frameNumber = String(frame).padStart(4, '0');
+                resourcesToLoad.push({
+                    alias: `markerBase${frame}`,
+                    src: `${markerBasePath}base${frameNumber}.png`
+                });
+            }
+            
+            // 3. 加载touch_perfect动画帧 (15帧)
+            for (let frame = 1; frame <= touchPerfectFrames; frame++) {
+                const frameNumber = String(frame).padStart(4, '0');
+                resourcesToLoad.push({
+                    alias: `touchPerfect${frame}`,
+                    src: `${touchPerfectPath}perfect${frameNumber}.png`
+                });
+            }
+            
+            // 4. 加载touch_great动画帧 (15帧)
+            for (let frame = 1; frame <= 15; frame++) {
+                const frameNumber = String(frame).padStart(4, '0');
+                resourcesToLoad.push({
+                    alias: `touchGreat${frame}`,
+                    src: `${touchGreatPath}great${frameNumber}.png`
+                });
+            }
+            
+            // 5. 加载touch_good动画帧 (15帧)
+            for (let frame = 1; frame <= 15; frame++) {
+                const frameNumber = String(frame).padStart(4, '0');
+                resourcesToLoad.push({
+                    alias: `touchGood${frame}`,
+                    src: `${touchGoodPath}good${frameNumber}.png`
+                });
+            }
+            
+            // 6. 加载touch_poor动画帧 (15帧)
+            for (let frame = 1; frame <= 15; frame++) {
+                const frameNumber = String(frame).padStart(4, '0');
+                resourcesToLoad.push({
+                    alias: `touchPoor${frame}`,
+                    src: `${touchPoorPath}poor${frameNumber}.png`
+                });
+            }
+            
+            loadingProgress.total = resourcesToLoad.length;
+            loadingProgress.loaded = 0;
+            
+            // 使用PIXI.Assets批量加载
+            try {
+                // 创建加载进度回调
+                const loadProgress = (progress) => {
+                    loadingProgress.loaded = Math.round(progress * loadingProgress.total);
+                    const percent = Math.round(progress * 100);
+                    console.log(`资源加载进度: ${percent}% (${loadingProgress.loaded}/${loadingProgress.total})`);
+                    
+                    // 更新UI显示
+                    const loadingPercent = document.getElementById('loadingPercent');
+                    if (loadingPercent) {
+                        loadingPercent.textContent = `${percent}%`;
+                    }
+                };
+                
+                // 添加所有资源到Assets
+                const loadPromises = resourcesToLoad.map(resource => 
+                    PIXI.Assets.load({ alias: resource.alias, src: resource.src })
+                );
+                
+                // 等待所有资源加载完成
+                await Promise.all(loadPromises);
+                
+                console.log('所有资源加载完成!');
+                
+                // 加载专辑封面
+                await loadAlbumCover();
+                
+                // 获取play_button纹理
+                playButtonUpTexture = PIXI.Assets.get('playButtonUp');
+                playButtonDownTexture = PIXI.Assets.get('playButtonDown');
+                
+                resourcesLoaded = true;
+                
+            } catch (error) {
+                console.error('资源加载失败:', error);
+                throw error;
+            }
+        }
+        
+        // 从缓存中获取纹理
+        function getTextureFromCache(name) {
+            try {
+                return PIXI.Assets.get(name);
+            } catch (e) {
+                console.warn(`无法获取纹理: ${name}`);
+                return null;
+            }
+        }
+        
         // 创建4x4网格
         function createGrid() {
+            // 如果资源还未加载完成，等待后再创建
+            if (!resourcesLoaded) {
+                console.warn('资源尚未加载完成，延迟创建网格');
+                setTimeout(createGrid, 100);
+                return;
+            }
+            
             // 保存所有note的引用
             const savedNotes = notes.length > 0 ? [...notes] : [];
             
+            // 保存粒子容器（因为它在gridContainer中）
+            const savedParticleContainer = particleContainer;
+            
+            // 保存Combo文本（如果存在）
+            const savedComboText = comboText;
+            const savedComboLabelText = comboLabelText;
+            
+            // 保存所有note的判定动画（如果存在）
+            const savedTouchAnimations = [];
+            savedNotes.forEach(note => {
+                if (note.touchAnimation) {
+                    savedTouchAnimations.push({
+                        note: note,
+                        animation: note.touchAnimation
+                    });
+                }
+            });
+            
             // 清除现有的图形
             gridContainer.removeChildren();
+            
+            // 重新添加粒子容器
+            gridContainer.addChild(savedParticleContainer);
+            
+            // 重新添加Combo文本（如果存在）
+            if (savedComboText && savedComboLabelText) {
+                gridContainer.addChildAt(savedComboLabelText, 0);
+                gridContainer.addChildAt(savedComboText, 1);
+                // 更新位置以适应新的屏幕尺寸
+                savedComboLabelText.x = app.screen.width / 2;
+                savedComboLabelText.y = app.screen.height / 2 - 10;
+                savedComboText.x = app.screen.width / 2;
+                savedComboText.y = app.screen.height / 2 + 10;
+            }
+            
+            // 重新添加判定动画（如果存在）
+            savedTouchAnimations.forEach(item => {
+                gridContainer.addChild(item.animation);
+                // 更新位置和大小
+                item.animation.x = item.note.col * cellSize;
+                item.animation.y = item.note.row * cellSize;
+                item.animation.width = cellSize;
+                item.animation.height = cellSize;
+                
+                // 重新设置层级，放在button下层
+                const buttonIndex = item.note.row * gridSize + item.note.col;
+                const button = playButtons[buttonIndex];
+                if (button && button.parent === gridContainer) {
+                    const buttonChildIndex = gridContainer.getChildIndex(button);
+                    gridContainer.setChildIndex(item.animation, buttonChildIndex - 1);
+                }
+            });
             
             // 网格占满整个画布
             cellSize = Math.floor(app.screen.width / gridSize);
@@ -251,13 +774,12 @@
                 updateAllNotesPosition();
             }
             
-            // 为每个格子添加play_button图片（最顶层）
+            // 为每个格子添加play_button图片
             playButtons.length = 0; // 清空数组
             for (let row = 0; row < gridSize; row++) {
                 for (let col = 0; col < gridSize; col++) {
                     try {
-                        const buttonTexture = PIXI.Texture.from('./markers/play_button.png');
-                        const button = new PIXI.Sprite(buttonTexture);
+                        const button = new PIXI.Sprite(playButtonUpTexture);
                         button.anchor.set(0.5);
                         button.x = col * cellSize + cellSize / 2;
                         button.y = row * cellSize + cellSize / 2;
@@ -265,6 +787,59 @@
                         // 占满整个格子
                         button.width = cellSize;
                         button.height = cellSize;
+                        
+                        // 添加交互事件
+                        button.interactive = true;
+                        button.buttonMode = true;
+                        button.cursor = 'pointer';
+                        const cellIndex = row * gridSize + col;
+                        button._row = row; // 存储行号
+                        button._col = col; // 存储列号
+                        
+                        // 按下事件
+                        button.on('pointerdown', (event) => {
+                            const pointerId = event.data.identifier || 0;
+                            button.texture = playButtonDownTexture;
+                            
+                            // 记录触摸点
+                            activeTouches.set(pointerId, { row, col, button });
+                            
+                            // 获取实际触摸位置
+                            const localPos = event.data.getLocalPosition(gridContainer);
+                            // spawnParticles(localPos.x, localPos.y, 0xffd700);
+                            
+                            // 如果未播放且点击的是有START HERE提示的格子，自动开始播放
+                            if (!isPlaying && audioBuffer) {
+                                const hasStartHere = startHereTexts.some(hint => hint.cellIndex === cellIndex);
+                                if (hasStartHere) {
+                                    // 尝试进入全屏模式
+                                    enterFullscreen();
+                                    
+                                    // 如果AudioContext被挂起，先恢复
+                                    if (audioContext && audioContext.state === 'suspended') {
+                                        audioContext.resume();
+                                    }
+                                    playAudio();
+                                }
+                            }
+                            
+                            // 触发判定逻辑
+                            handleTouch(cellIndex);
+                        });
+                        
+                        // 释放事件
+                        button.on('pointerup', (event) => {
+                            const pointerId = event.data.identifier || 0;
+                            button.texture = playButtonUpTexture;
+                            activeTouches.delete(pointerId);
+                        });
+                        button.on('pointerupoutside', (event) => {
+                            const pointerId = event.data.identifier || 0;
+                            button.texture = playButtonUpTexture;
+                            activeTouches.delete(pointerId);
+                        });
+                        
+                        // 触摸离开按钮区域时不恢复状态，保持按下态直到pointerup
                         
                         gridContainer.addChild(button);
                         playButtons.push(button);
@@ -274,135 +849,174 @@
                 }
             }
             
+            // 为整个gridContainer添加全局触摸移动事件
+            gridContainer.interactive = true;
+            gridContainer.on('pointermove', (event) => {
+                const pointerId = event.data.identifier || 0;
+                const localPos = event.data.getLocalPosition(gridContainer);
+                
+                // 计算当前触摸点在哪个格子
+                const col = Math.floor(localPos.x / cellSize);
+                const row = Math.floor(localPos.y / cellSize);
+                
+                // 检查是否在有效范围内
+                if (col < 0 || col >= gridSize || row < 0 || row >= gridSize) return;
+                
+                const currentCellIndex = row * gridSize + col;
+                const touchInfo = activeTouches.get(pointerId);
+                
+                // 如果是新的格子，切换按钮状态
+                if (touchInfo && (touchInfo.row !== row || touchInfo.col !== col)) {
+                    // 不要恢复旧按钮状态！让旧按钮保持按下状态以支持多点触控
+                    
+                    // 设置新按钮状态
+                    const newButton = playButtons[currentCellIndex];
+                    if (newButton) {
+                        newButton.texture = playButtonDownTexture;
+                        
+                        // 更新触摸追踪
+                        activeTouches.set(pointerId, { row, col, button: newButton });
+                        
+                        // spawnParticles(localPos.x, localPos.y, 0xffd700);
+                        
+                        // 触发判定逻辑
+                        handleTouch(currentCellIndex);
+                    }
+                }
+            });
+            
+            // 确保play_button在所有note之上（但不包括粒子容器）
+            const maxIndex = gridContainer.children.length - 1; // particleContainer的索引
+            playButtons.forEach((button, index) => {
+                gridContainer.setChildIndex(button, maxIndex - playButtons.length + index);
+            });
+            
+            // 确保粒子容器在最顶层
+            gridContainer.setChildIndex(particleContainer, gridContainer.children.length - 1);
+            
             // 更新Start Here提示（也在顶层）
             updateStartHereHints();
         }
         
-        // 创建进度条
-        function createProgressBar() {
-            const barWidth = app.screen.width * 0.8;
-            const barHeight = 8;
-            const barX = (app.screen.width - barWidth) / 2;
-            const barY = 20;
-            
-            // 背景
-            if (!progressBackground) {
-                progressBackground = new PIXI.Graphics();
-                progressContainer.addChild(progressBackground);
-            }
-            progressBackground.clear();
-            progressBackground.beginFill(0x000000, 0.3);
-            progressBackground.drawRoundedRect(barX, barY, barWidth, barHeight, 4);
-            progressBackground.endFill();
-            
-            // 进度条
-            if (!progressBar) {
-                progressBar = new PIXI.Graphics();
-                progressContainer.addChildAt(progressBar, 0);
-            }
-            progressBar.clear();
-            progressBar.beginFill(0x3498db, 0.8);
-            progressBar.drawRoundedRect(barX, barY, 0, barHeight, 4);
-            progressBar.endFill();
-            
-            // 时间文本
-            if (!progressText) {
-                progressText = new PIXI.Text('0:00 / 0:00', {
+        // 创建Combo显示文本
+        function createComboText() {
+            if (!comboText) {
+                // 创建"COMBO"标签
+                comboLabelText = new PIXI.Text('COMBO', {
                     fontFamily: 'Arial',
-                    fontSize: 14,
+                    fontSize: 48,
+                    fontWeight: 'bold',
                     fill: 0xffffff,
+                    stroke: 0x000000,
+                    strokeThickness: 4,
                     align: 'center'
                 });
-                progressContainer.addChild(progressText);
+                comboLabelText.anchor.set(0.5, 1); // 底部对齐
+                comboLabelText.x = app.screen.width / 2;
+                comboLabelText.y = app.screen.height / 2 - 10; // 稍微向上偏移
+                comboLabelText.visible = false;
+                comboLabelText.alpha = 0;
+                comboLabelText.scale.set(1);
+                
+                // 创建Combo数字
+                comboText = new PIXI.Text('0', {
+                    fontFamily: 'Arial',
+                    fontSize: 200,
+                    fontWeight: 'bold',
+                    fill: 0xffffff,
+                    stroke: 0x000000,
+                    strokeThickness: 8,
+                    align: 'center'
+                });
+                comboText.anchor.set(0.5, 0); // 顶部对齐
+                comboText.x = app.screen.width / 2;
+                comboText.y = app.screen.height / 2 + 10; // 稍微向下偏移
+                comboText.visible = false;
+                comboText.alpha = 0;
+                comboText.scale.set(1);
+                
+                // 添加到gridContainer的最底层
+                gridContainer.addChildAt(comboLabelText, 0);
+                gridContainer.addChildAt(comboText, 1);
             }
-            progressText.x = app.screen.width / 2;
-            progressText.y = barY + barHeight + 5;
-            progressText.anchor.set(0.5, 0);
-            
-            // 添加交互区域用于点击
-            let clickArea = progressContainer.getChildByName('progressClickArea');
-            if (!clickArea) {
-                clickArea = new PIXI.Graphics();
-                clickArea.name = 'progressClickArea';
-                clickArea.interactive = true;
-                clickArea.buttonMode = true;
-                clickArea.on('pointerdown', onProgressClick);
-                progressContainer.addChild(clickArea);
-            }
-            clickArea.clear();
-            clickArea.beginFill(0x000000, 0); // 透明
-            clickArea.drawRect(barX - 10, barY - 10, barWidth + 20, barHeight + 20);
-            clickArea.endFill();
         }
         
-        // 进度条点击事件
-        function onProgressClick(event) {
-            if (!audioBuffer) return;
+        // 更新Combo显示
+        function updateComboDisplay() {
+            if (!comboText || !comboLabelText) return;
             
-            const duration = audioBuffer.duration;
-            const barWidth = app.screen.width * 0.8;
-            const barX = (app.screen.width - barWidth) / 2;
-            
-            const localPos = event.data.getLocalPosition(progressContainer);
-            const relativeX = localPos.x - barX;
-            let progress = relativeX / barWidth;
-            progress = Math.max(0, Math.min(1, progress));
-            
-            // 跳转到对应位置
-            if (isPlaying) {
-                stopAudio();
+            if (combo > 0) {
+                comboText.text = combo.toString();
+                comboText.visible = true;
+                comboText.alpha = Math.min(1, comboText.alpha + 0.1);
+                
+                comboLabelText.visible = true;
+                comboLabelText.alpha = Math.min(1, comboLabelText.alpha + 0.1);
+                
+                // 检测combo是否增加
+                if (combo > lastCombo) {
+                    // Combo增加时，放大到1.3倍
+                    comboText.scale.set(1.3);
+                    lastCombo = combo;
+                } else {
+                    // 逐渐缩小到正常大小
+                    const currentScale = comboText.scale.x;
+                    if (currentScale > 1.0) {
+                        const newScale = Math.max(1.0, currentScale - 0.05);
+                        comboText.scale.set(newScale);
+                    }
+                }
+            } else {
+                comboText.alpha = Math.max(0, comboText.alpha - 0.1);
+                comboLabelText.alpha = Math.max(0, comboLabelText.alpha - 0.1);
+                
+                if (comboText.alpha <= 0) {
+                    comboText.visible = false;
+                    comboLabelText.visible = false;
+                }
+                
+                // 重置combo时，也重置lastCombo
+                if (combo === 0) {
+                    lastCombo = 0;
+                    comboText.scale.set(1);
+                }
             }
-            pauseTime = duration * progress;
-            playAudio();
         }
         
-        // 更新进度条
-        function updateProgress() {
-            if (!isPlaying || !audioBuffer || !progressBar) return;
-            
-            const currentTime = getCurrentTime();
-            const duration = audioBuffer.duration;
-            const progress = Math.min(currentTime / duration, 1);
-            
-            const barWidth = app.screen.width * 0.8;
-            const barX = (app.screen.width - barWidth) / 2;
-            const barHeight = 8;
-            const barY = 20;
-            
-            // 更新进度条宽度
-            progressBar.clear();
-            progressBar.beginFill(0x3498db, 0.8);
-            progressBar.drawRoundedRect(barX, barY, barWidth * progress, barHeight, 4);
-            progressBar.endFill();
-            
-            // 更新时间文本
-            const currentMinutes = Math.floor(currentTime / 60);
-            const currentSeconds = Math.floor(currentTime % 60);
-            const totalMinutes = Math.floor(duration / 60);
-            const totalSeconds = Math.floor(duration % 60);
-            
-            progressText.text = `${currentMinutes}:${String(currentSeconds).padStart(2, '0')} / ${totalMinutes}:${String(totalSeconds).padStart(2, '0')}`;
+        // 更新判定统计显示
+        function updateStatsDisplay() {
+            document.getElementById('perfectCount').textContent = stats.perfect;
+            document.getElementById('greatCount').textContent = stats.great;
+            document.getElementById('goodCount').textContent = stats.good;
+            document.getElementById('poorCount').textContent = stats.poor;
+            document.getElementById('missCount').textContent = stats.miss;
+            document.getElementById('maxComboCount').textContent = maxCombo;
         }
         
-        // 更新进度条位置
-        function updateProgressPosition() {
-            if (!progressBackground || !progressBar || !progressText) return;
-            
-            const barWidth = app.screen.width * 0.8;
-            const barHeight = 8;
-            const barX = (app.screen.width - barWidth) / 2;
-            const barY = 20;
-            
-            // 重新绘制背景
-            progressBackground.clear();
-            progressBackground.beginFill(0x000000, 0.3);
-            progressBackground.drawRoundedRect(barX, barY, barWidth, barHeight, 4);
-            progressBackground.endFill();
-            
-            // 更新文本位置
-            progressText.x = app.screen.width / 2;
-            progressText.y = barY + barHeight + 5;
+        // 重置统计
+        function resetStats() {
+            combo = 0;
+            maxCombo = 0;
+            lastCombo = 0;
+            stats.perfect = 0;
+            stats.great = 0;
+            stats.good = 0;
+            stats.poor = 0;
+            stats.miss = 0;
+            updateStatsDisplay();
+            if (comboText) {
+                comboText.text = '0';
+                comboText.visible = false;
+                comboText.alpha = 0;
+                comboText.scale.set(1);
+            }
+            if (comboLabelText) {
+                comboLabelText.visible = false;
+                comboLabelText.alpha = 0;
+            }
         }
+        
+
 
         // 解析谱面文件
         async function loadChart() {
@@ -454,16 +1068,25 @@
         
         // 初始化所有格子的note对象
         function initNotes() {
+            // 如果资源还未加载完成，等待后再初始化
+            if (!resourcesLoaded) {
+                console.warn('资源尚未加载完成，延迟初始化notes');
+                setTimeout(initNotes, 100);
+                return;
+            }
+            
             for (let i = 0; i < totalCells; i++) {
                 const row = Math.floor(i / 4);
                 const col = i % 4;
                 
-                // 创建帧动画
+                // 使用预加载的纹理创建帧动画
                 const textures = [];
                 for (let frame = 1; frame <= totalFrames; frame++) {
-                    const frameNumber = String(frame).padStart(4, '0');
-                    const texture = PIXI.Texture.from(`${markerBasePath}base${frameNumber}.png`);
-                    textures.push(texture);
+                    const textureName = `markerBase${frame}`;
+                    const texture = getTextureFromCache(textureName);
+                    if (texture) {
+                        textures.push(texture);
+                    }
                 }
                 
                 const animation = new PIXI.AnimatedSprite(textures);
@@ -472,12 +1095,14 @@
                 animation.visible = false;
                 animation.gotoAndStop(0);
                 
-                // 创建touch_perfect动画
+                // 使用预加载的touch_perfect纹理
                 const touchPerfectTextures = [];
                 for (let frame = 1; frame <= touchPerfectFrames; frame++) {
-                    const frameNumber = String(frame).padStart(4, '0');
-                    const texture = PIXI.Texture.from(`${touchPerfectPath}perfect${frameNumber}.png`);
-                    touchPerfectTextures.push(texture);
+                    const textureName = `touchPerfect${frame}`;
+                    const texture = getTextureFromCache(textureName);
+                    if (texture) {
+                        touchPerfectTextures.push(texture);
+                    }
                 }
                 
                 const touchPerfectAnimation = new PIXI.AnimatedSprite(touchPerfectTextures);
@@ -621,13 +1246,17 @@
                 button.width = cellSize;
                 button.height = cellSize;
                 
-                // 确保play_button始终在最顶层
-                gridContainer.setChildIndex(button, gridContainer.children.length - 1);
+                // 确保play_button始终在最顶层（只在按钮已添加到容器时设置）
+                if (button.parent === gridContainer) {
+                    gridContainer.setChildIndex(button, gridContainer.children.length - 1);
+                }
             });
             
-            // 也确保Start Here提示在顶层
-            startHereTexts.forEach(text => {
-                gridContainer.setChildIndex(text, gridContainer.children.length - 1);
+            // 也确保Start Here提示在顶层（只在文本已添加到容器时设置）
+            startHereTexts.forEach(hint => {
+                if (hint.text && hint.text.parent === gridContainer) {
+                    gridContainer.setChildIndex(hint.text, gridContainer.children.length - 1);
+                }
             });
         }
         
@@ -638,19 +1267,31 @@
             const currentTime = getCurrentTime() * 1000; // 转换为毫秒
             const note = notes[cellIndex];
             
-            // 查找该格子最近的note
+            // 如果该格子正在播放touch动画，不允许再次触发
+            if (note.isTouching) return;
+            
+            // 查找该格子最近的未被判定的note
             const cellNotes = chartData.filter(n => n.cellIndex === cellIndex);
             if (cellNotes.length === 0) return;
             
-            // 找到最近的note
+            // 找到最近的未被判定的note
             let closestNote = null;
             let minTimeDiff = Infinity;
+            let closestNoteIndex = -1;
             
-            for (const noteData of cellNotes) {
+            for (let i = 0; i < cellNotes.length; i++) {
+                const noteData = cellNotes[i];
+                // 创建唯一标识符：cellIndex + time
+                const noteKey = `${noteData.cellIndex}_${noteData.time}`;
+                
+                // 跳过已经判定过的note
+                if (judgedNotes.has(noteKey)) continue;
+                
                 const timeDiff = Math.abs(currentTime - noteData.time);
                 if (timeDiff < minTimeDiff) {
                     minTimeDiff = timeDiff;
                     closestNote = noteData;
+                    closestNoteIndex = i;
                 }
             }
             
@@ -672,28 +1313,158 @@
                 currentFrameIndex = Math.floor(timeDiff / frameDuration) + preDisplayFrames;
             }
             
-            // 判定：如果当前帧在perfect窗口内（base0016~18，即帧15~17）
+            // 判定逻辑（按优先级：Perfect > Great > Good > Poor）
+            let judgment = null;
+            
             if (currentFrameIndex >= perfectWindowStart && currentFrameIndex <= perfectWindowEnd) {
-                // 触发touch_perfect动画
-                triggerTouchPerfect(note);
-                console.log(`Perfect! Cell ${cellIndex + 1}, Frame ${currentFrameIndex + 1}`);
+                // Perfect
+                judgment = 'perfect';
+            } else {
+                // 检查Great
+                for (const window of greatWindows) {
+                    if (currentFrameIndex >= window.start && currentFrameIndex <= window.end) {
+                        judgment = 'great';
+                        break;
+                    }
+                }
+                
+                if (!judgment) {
+                    // 检查Good
+                    for (const window of goodWindows) {
+                        if (currentFrameIndex >= window.start && currentFrameIndex <= window.end) {
+                            judgment = 'good';
+                            break;
+                        }
+                    }
+                }
+                
+                if (!judgment) {
+                    // 检查Poor
+                    for (const window of poorWindows) {
+                        if (currentFrameIndex >= window.start && currentFrameIndex <= window.end) {
+                            judgment = 'poor';
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // 如果有判定结果，触发动画并标记为已判定
+            if (judgment) {
+                // 标记该note为已判定
+                const noteKey = `${closestNote.cellIndex}_${closestNote.time}`;
+                judgedNotes.add(noteKey);
+                
+                // 更新combo和统计
+                if (judgment === 'poor') {
+                    // Poor打断combo
+                    combo = 0;
+                    stats.poor++;
+                } else {
+                    // Perfect/Great/Good增加combo
+                    combo++;
+                    if (combo > maxCombo) {
+                        maxCombo = combo;
+                    }
+                    stats[judgment]++;
+                }
+                
+                // 添加判定标记到进度条（只标记Miss/Poor/Good/Great）
+                if (judgment !== 'perfect') {
+                    addJudgmentMark(judgment, closestNote.time);
+                }
+                
+                // 更新显示
+                updateStatsDisplay();
+                updateComboDisplay();
+                
+                // 触发判定动画
+                triggerTouchAnimation(note, judgment);
+                console.log(`${judgment.charAt(0).toUpperCase() + judgment.slice(1)}! Cell ${cellIndex + 1}, Frame ${currentFrameIndex + 1}, Time: ${closestNote.time}ms, Combo: ${combo}`);
             }
         }
         
-        // 触发touch_perfect动画
-        function triggerTouchPerfect(note) {
-            // 重置并播放touch_perfect动画
-            note.touchPerfectAnimation.gotoAndStop(0);
-            note.touchPerfectAnimation.visible = true;
-            note.touchPerfectAnimation.play();
-            note.isTouching = true;
+        // 触发touch判定动画
+        function triggerTouchAnimation(note, judgment) {
+            // 根据判定类型选择动画路径和前缀
+            let texturePrefix;
+            switch(judgment) {
+                case 'perfect':
+                    texturePrefix = 'touchPerfect';
+                    break;
+                case 'great':
+                    texturePrefix = 'touchGreat';
+                    break;
+                case 'good':
+                    texturePrefix = 'touchGood';
+                    break;
+                case 'poor':
+                    texturePrefix = 'touchPoor';
+                    break;
+                default:
+                    return;
+            }
             
-            // 动画播放完后自动隐藏
-            setTimeout(() => {
-                note.touchPerfectAnimation.visible = false;
-                note.touchPerfectAnimation.stop();
-                note.isTouching = false;
-            }, 500); // 约500ms后隐藏（15帧 * 33.33ms ≈ 500ms）
+            // 如果动画对象不存在，使用预加载的纹理创建它
+            if (!note.touchAnimation) {
+                const touchTextures = [];
+                for (let frame = 1; frame <= 15; frame++) {
+                    const textureName = `${texturePrefix}${frame}`;
+                    const texture = getTextureFromCache(textureName);
+                    if (texture) {
+                        touchTextures.push(texture);
+                    }
+                }
+                
+                if (touchTextures.length === 0) {
+                    console.warn(`无法找到${judgment}判定的纹理`);
+                    return;
+                }
+                
+                note.touchAnimation = new PIXI.AnimatedSprite(touchTextures);
+                note.touchAnimation.animationSpeed = 1.0; // 正常速度播放
+                note.touchAnimation.loop = false;
+                note.touchAnimation.visible = false;
+                note.touchAnimation.gotoAndStop(0);
+                
+                // 添加动画完成事件监听
+                note.touchAnimation.onComplete = () => {
+                    // 动画播放完成后，短暂停留在最后一帧后立即隐藏
+                    setTimeout(() => {
+                        note.touchAnimation.visible = false;
+                        note.touchAnimation.stop();
+                        note.isTouching = false;
+                    }, 50); // 最后一帧只停留50ms
+                };
+                
+                // 将判定动画添加到gridContainer，并放在button下层
+                gridContainer.addChild(note.touchAnimation);
+                
+                // 找到对应的button，将判定动画放在button下面
+                const buttonIndex = note.row * gridSize + note.col;
+                const button = playButtons[buttonIndex];
+                if (button && button.parent === gridContainer) {
+                    const buttonChildIndex = gridContainer.getChildIndex(button);
+                    // 将判定动画放在button的前面（下层）
+                    gridContainer.setChildIndex(note.touchAnimation, buttonChildIndex - 1);
+                }
+            }
+            
+            // 设置位置和大小（占满整个格子）
+            note.touchAnimation.x = note.col * cellSize;
+            note.touchAnimation.y = note.row * cellSize;
+            note.touchAnimation.width = cellSize;
+            note.touchAnimation.height = cellSize;
+            
+            // 立即隐藏并停止base动画，防止与判定动画重叠
+            note.animation.visible = false;
+            note.animation.stop();
+            
+            // 重置并播放判定动画
+            note.touchAnimation.gotoAndStop(0);
+            note.touchAnimation.visible = true;
+            note.touchAnimation.play();
+            note.isTouching = true;
         }
         
         // 根据当前音频时间更新所有note的帧
@@ -717,6 +1488,23 @@
                     // 遍历该格子的所有note，找到当前应该显示的帧
                     for (const noteData of cellNotes) {
                         const timeDiff = currentTimeMs - noteData.time;
+                        const noteKey = `${noteData.cellIndex}_${noteData.time}`;
+                        
+                        // 检查是否已经错过（超过显示范围且未被判定）
+                        if (timeDiff >= postDisplayTime && !judgedNotes.has(noteKey)) {
+                            // Miss：note已经超过显示范围但未被判定
+                            judgedNotes.add(noteKey);
+                            stats.miss++;
+                            combo = 0; // Miss打断combo
+                            
+                            // 添加Miss标记到进度条
+                            addJudgmentMark('miss', noteData.time);
+                            
+                            updateStatsDisplay();
+                            updateComboDisplay();
+                            console.log(`Miss! Cell ${index + 1}, Time: ${noteData.time}ms`);
+                            continue;
+                        }
                         
                         // 如果在预显示范围内（前267ms）
                         if (timeDiff >= -preDisplayTime && timeDiff < 0) {
@@ -788,6 +1576,9 @@
                 return;
             }
             
+            // 检查是否是从头开始播放（pauseTime为0）
+            const isFreshStart = pauseTime === 0;
+            
             // 创建新的音源
             audioSource = audioContext.createBufferSource();
             audioSource.buffer = audioBuffer;
@@ -798,8 +1589,17 @@
             audioSource.start(0, offset);
             startTime = audioContext.currentTime - offset;
             
-            // 显示进度条
-            domProgressContainer.style.display = 'flex';
+            // 只有从头开始播放时才重置统计和清除标记
+            if (isFreshStart) {
+                // 重置统计
+                resetStats();
+                
+                // 清除所有判定标记
+                clearJudgmentMarks();
+            }
+            
+            // 创建Combo文本
+            createComboText();
             
             audioSource.onended = () => {
                 if (isPlaying) {
@@ -810,7 +1610,6 @@
                     // 隐藏进度条
                     domProgressContainer.style.display = 'none';
                     progressBarFill.style.width = '0%';
-                    progressTimeText.textContent = '0:00 / 0:00';
                 }
             };
             
@@ -846,23 +1645,93 @@
         function updatePlayButton() {
             const button = document.getElementById('playButton');
             if (button) {
-                button.textContent = isPlaying ? '暂停' : '播放';
+                button.textContent = isPlaying ? '⏸️' : '▶️';
             }
+        }
+        
+        // 重玩功能
+        function replay() {
+            // 停止当前播放
+            if (isPlaying && audioSource) {
+                try {
+                    audioSource.stop();
+                } catch (e) {
+                    // 忽略错误
+                }
+                audioSource = null;
+            }
+            
+            // 重置所有状态
+            isPlaying = false;
+            pauseTime = 0;
+            
+            // 重置统计
+            resetStats();
+            
+            // 清除判定标记
+            clearJudgmentMarks();
+            
+            // 清除已判定的note集合
+            judgedNotes.clear();
+            
+            // 隐藏进度条（重玩后会重新显示）
+            domProgressContainer.style.display = 'none';
+            
+            // 更新按钮状态
+            updatePlayButton();
+            
+            console.log('游戏已重置，可以重新开始');
+            
+            // 自动开始播放
+            setTimeout(() => {
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                enterFullscreen();
+                playAudio();
+            }, 100); // 短暂延迟确保重置完成
         }
         
         // 绑定播放按钮事件
         document.addEventListener('DOMContentLoaded', () => {
-            const button = document.getElementById('playButton');
-            if (button) {
-                button.addEventListener('click', () => {
+            // 播放/暂停按钮
+            const playButton = document.getElementById('playButton');
+            if (playButton) {
+                playButton.addEventListener('click', () => {
                     // 首次点击时恢复AudioContext（浏览器策略要求）
                     if (audioContext && audioContext.state === 'suspended') {
                         audioContext.resume();
                     }
+                    
+                    // 尝试进入全屏模式
+                    enterFullscreen();
+                    
                     playAudio();
                 });
             }
+            
+            // 重玩按钮
+            const replayButton = document.getElementById('replayButton');
+            if (replayButton) {
+                replayButton.addEventListener('click', () => {
+                    replay();
+                });
+            }
         });
+        
+        // 全屏功能
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(err => {
+                    console.log('全屏请求被拒绝或失败:', err);
+                });
+            } else if (elem.webkitRequestFullscreen) { /* Safari */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE11 */
+                elem.msRequestFullscreen();
+            }
+        }
 
 
         // 定位网格使其居底
@@ -873,6 +1742,12 @@
         app.ticker.add(() => {
             // 始终更新Start Here提示（即使未播放）
             updateStartHereHints();
+            
+            // 更新粒子效果
+            updateParticles();
+            
+            // 更新Combo显示
+            updateComboDisplay();
             
             if (isPlaying && audioContext) {
                 const currentTime = getCurrentTime() * 1000; // 转换为毫秒
@@ -887,43 +1762,115 @@
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 const newSize = getContainerSize();
+                
+                // 防止尺寸为0导致计算错误
+                if (newSize.width <= 0 || newSize.height <= 0) return;
+                
                 app.renderer.resize(newSize.width, newSize.height);
+                
+                // 更新专辑封面大小
+                updateAlbumCoverSize();
+                
+                // 重新创建网格
                 createGrid();
-            }, 100); // 防抖100ms
+                
+                console.log(`窗口调整完成: ${newSize.width}x${newSize.height}, cellSize: ${cellSize}`);
+            }, 150); // 增加防抖时间到150ms
         }
         
         window.addEventListener('resize', handleResize);
         
-        // 监听窗口状态变化（最大化/还原）
-        let lastWidth = window.innerWidth;
-        let lastHeight = window.innerHeight;
-        
-        function checkWindowSize() {
-            if (window.innerWidth !== lastWidth || window.innerHeight !== lastHeight) {
-                lastWidth = window.innerWidth;
-                lastHeight = window.innerHeight;
-                handleResize();
-            }
-            requestAnimationFrame(checkWindowSize);
-        }
-        
-        // 启动窗口大小检测
-        checkWindowSize();
+        // 移除之前多余的 checkWindowSize 逻辑，避免与 resize 事件冲突导致元素丢失
         
         // 解析URL参数（必须在initAudio和loadChart之前）
         parseURLParams();
         
-        // 初始化音频
-        initAudio();
+        // 预加载所有资源，然后初始化游戏
+        async function initializeGame() {
+            try {
+                // 显示加载提示
+                const loadingDiv = document.createElement('div');
+                loadingDiv.id = 'loadingIndicator';
+                loadingDiv.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: white;
+                    font-family: Arial, sans-serif;
+                    font-size: 18px;
+                    z-index: 1000;
+                    text-align: center;
+                `;
+                loadingDiv.innerHTML = '<div>正在加载资源...</div><div id="loadingPercent" style="margin-top: 10px; font-size: 14px;">0%</div>';
+                document.body.appendChild(loadingDiv);
+                
+                // 预加载所有资源
+                await preloadAllResources();
+                
+                // 移除加载提示
+                if (loadingDiv.parentNode) {
+                    loadingDiv.parentNode.removeChild(loadingDiv);
+                }
+                
+                console.log('资源加载完成，开始初始化游戏...');
+                
+                // 初始化音频
+                initAudio();
+                
+                // 加载谱面
+                loadChart();
+                
+            } catch (error) {
+                console.error('游戏初始化失败:', error);
+                const loadingDiv = document.getElementById('loadingIndicator');
+                if (loadingDiv) {
+                    loadingDiv.innerHTML = '<div style="color: red;">加载失败，请刷新页面重试</div>';
+                }
+            }
+        }
         
-        // 加载谱面
-        loadChart();
+        // 启动游戏初始化
+        initializeGame();
         
         // DOM进度条相关元素
         const domProgressContainer = document.getElementById('progressContainer');
         const progressBarWrapper = document.getElementById('progressBarWrapper');
         const progressBarFill = document.getElementById('progressBarFill');
-        const progressTimeText = document.getElementById('progressTime');
+        const judgmentMarksContainer = document.getElementById('judgmentMarks');
+        
+        // 立即显示进度条（在加载完成后）
+        domProgressContainer.style.display = 'flex';
+        
+        // 添加判定标记到进度条
+        function addJudgmentMark(judgment, noteTime) {
+            if (!audioBuffer || !judgmentMarksContainer) return;
+            
+            const duration = audioBuffer.duration;
+            const progress = noteTime / (duration * 1000); // 转换为秒
+            const clampedProgress = Math.max(0, Math.min(1, progress));
+            
+            const mark = document.createElement('div');
+            mark.className = `judgment-mark mark-${judgment}`;
+            
+            const isLandscape = window.innerWidth > window.innerHeight;
+            if (isLandscape) {
+                // 横屏模式：根据高度定位（从下往上）
+                mark.style.bottom = (clampedProgress * 100) + '%';
+            } else {
+                // 竖屏模式：根据宽度定位（从左往右）
+                mark.style.left = (clampedProgress * 100) + '%';
+            }
+            
+            judgmentMarksContainer.appendChild(mark);
+        }
+        
+        // 清除所有判定标记
+        function clearJudgmentMarks() {
+            if (judgmentMarksContainer) {
+                judgmentMarksContainer.innerHTML = '';
+            }
+        }
         
         // 更新DOM进度条
         function updateProgress() {
@@ -932,17 +1879,20 @@
             const currentTime = getCurrentTime();
             const duration = audioBuffer.duration;
             const progress = Math.min(currentTime / duration, 1);
+            const percent = progress * 100;
             
-            // 更新进度条宽度
-            progressBarFill.style.width = (progress * 100) + '%';
+            // 检测当前是横屏还是竖屏
+            const isLandscape = window.innerWidth > window.innerHeight;
             
-            // 更新时间文本
-            const currentMinutes = Math.floor(currentTime / 60);
-            const currentSeconds = Math.floor(currentTime % 60);
-            const totalMinutes = Math.floor(duration / 60);
-            const totalSeconds = Math.floor(duration % 60);
-            
-            progressTimeText.textContent = `${currentMinutes}:${String(currentSeconds).padStart(2, '0')} / ${totalMinutes}:${String(totalSeconds).padStart(2, '0')}`;
+            if (isLandscape) {
+                // 横屏模式：更新高度（从下往上）
+                progressBarFill.style.height = percent + '%';
+                progressBarFill.style.width = '100%';
+            } else {
+                // 竖屏模式：更新宽度（从左往右）
+                progressBarFill.style.width = percent + '%';
+                progressBarFill.style.height = '100%';
+            }
         }
         
         // 进度条点击事件
@@ -953,8 +1903,28 @@
             }
             
             const rect = progressBarWrapper.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            const progress = clickX / rect.width;
+            const isLandscape = window.innerWidth > window.innerHeight;
+            let progress;
+            
+            if (isLandscape) {
+                // 横屏模式：根据Y轴计算（从下往上）
+                // rect.bottom是底部坐标，e.clientY是点击位置的Y坐标
+                // 从底部开始的距离 = rect.bottom - e.clientY
+                const clickY = rect.bottom - e.clientY;
+                progress = clickY / rect.height;
+                console.log('横屏点击:', { 
+                    rectBottom: rect.bottom, 
+                    clientY: e.clientY, 
+                    clickY: clickY, 
+                    height: rect.height,
+                    progress: progress 
+                });
+            } else {
+                // 竖屏模式：根据X轴计算（从左往右）
+                const clickX = e.clientX - rect.left;
+                progress = clickX / rect.width;
+            }
+            
             const clampedProgress = Math.max(0, Math.min(1, progress));
             
             const duration = audioBuffer.duration;
@@ -982,14 +1952,16 @@
             pauseTime = newTime;
             console.log('设置pauseTime为:', pauseTime);
             
-            // 如果之前在播放，则继续播放
-            if (isPlaying) {
-                console.log('继续播放');
+            // 点击进度条后自动开始播放
+            if (!isPlaying) {
+                // 如果AudioContext被挂起，先恢复
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
                 playAudio();
             } else {
-                // 如果之前是暂停状态，更新按钮显示
-                console.log('保持暂停状态');
-                updatePlayButton();
+                // 如果已经在播放，重新开始播放
+                playAudio();
             }
         });
     </script>
