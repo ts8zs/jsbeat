@@ -2,7 +2,10 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
     <title>JSBeat</title>
     <style>
         body {
@@ -15,6 +18,11 @@
             position: relative;
             height: 100vh;
             width: 100vw;
+            touch-action: none; /* 禁用所有默认触摸行为 */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent; /* 移除点击高亮 */
         }
         
         /* Pixi画布容器 */
@@ -31,6 +39,10 @@
             display: block;
             width: 100% !important;
             height: 100% !important;
+            touch-action: none; /* 禁用浏览器默认触摸行为（如滚动、缩放） */
+            -webkit-touch-callout: none; /* 禁用iOS长按菜单 */
+            -webkit-user-select: none; /* 禁用文本选择 */
+            user-select: none;
         }
         
         /* 控制按钮容器样式 */
@@ -484,10 +496,204 @@
             backgroundColor: 0x000000, // 黑色背景
             antialias: true,
             autoDensity: true,
-            resolution: window.devicePixelRatio || 1
+            resolution: window.devicePixelRatio || 1,
+            eventMode: 'static', // 启用事件模式
+            eventFeatures: {
+                move: true,
+                globalMove: false,
+                click: true,
+                wheel: false
+            }
         });
         
+        // 确保交互管理器支持多点触控
+        if (app.renderer.events) {
+            app.renderer.events.supportsTouchEvents = true;
+            app.renderer.events.supportsPointerEvents = true;
+        }
+        
         pixiContainer.appendChild(app.view);
+        
+        // 防止画布上的默认触摸行为（滚动、缩放等）
+        app.view.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // 阻止所有默认行为
+            
+            console.log('=== Native TouchStart ===');
+            console.log('Touch count:', e.touches.length);
+            console.log('Changed touches:', e.changedTouches.length);
+            
+            // 处理每个新的触摸点
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const touch = e.changedTouches[i];
+                console.log('New touch ID:', touch.identifier, 'at', touch.clientX, touch.clientY);
+                
+                // 计算触摸点在哪个格子
+                const rect = app.view.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                const col = Math.floor(x / cellSize);
+                const row = Math.floor(y / cellSize);
+                
+                if (col >= 0 && col < gridSize && row >= 0 && row < gridSize) {
+                    const buttonIndex = row * gridSize + col;
+                    const button = playButtons[buttonIndex];
+                    
+                    if (button) {
+                        console.log('Touch', touch.identifier, 'on button', buttonIndex, '[', row, ',', col, ']');
+                        
+                        // 按下按钮
+                        button.texture = playButtonDownTexture;
+                        touchButtonMap.set(touch.identifier, button);
+                        
+                        if (!buttonTouchMap.has(button)) {
+                            buttonTouchMap.set(button, new Set());
+                        }
+                        buttonTouchMap.get(button).add(touch.identifier);
+                        
+                        // 触发判定
+                        handleTouch(buttonIndex);
+                    }
+                }
+            }
+            
+            console.log('Current touches:', touchButtonMap.size);
+            console.log('=========================\n');
+        }, { passive: false });
+        
+        app.view.addEventListener('touchmove', (e) => {
+            e.preventDefault(); // 阻止触摸移动时的滚动
+            
+            // 处理移动的触摸点
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const touch = e.changedTouches[i];
+                const oldButton = touchButtonMap.get(touch.identifier);
+                
+                // 计算新位置
+                const rect = app.view.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                const col = Math.floor(x / cellSize);
+                const row = Math.floor(y / cellSize);
+                
+                if (col >= 0 && col < gridSize && row >= 0 && row < gridSize) {
+                    const buttonIndex = row * gridSize + col;
+                    const newButton = playButtons[buttonIndex];
+                    
+                    // 如果移动到了新按钮
+                    if (newButton && newButton !== oldButton) {
+                        console.log('Touch', touch.identifier, 'moved from', oldButton ? 'btn' : 'none', 'to button', buttonIndex);
+                        
+                        // 释放旧按钮
+                        if (oldButton) {
+                            const oldTouches = buttonTouchMap.get(oldButton);
+                            if (oldTouches) {
+                                oldTouches.delete(touch.identifier);
+                                if (oldTouches.size === 0) {
+                                    oldButton.texture = playButtonUpTexture;
+                                    buttonTouchMap.delete(oldButton);
+                                }
+                            }
+                        }
+                        
+                        // 按下新按钮
+                        newButton.texture = playButtonDownTexture;
+                        touchButtonMap.set(touch.identifier, newButton);
+                        
+                        if (!buttonTouchMap.has(newButton)) {
+                            buttonTouchMap.set(newButton, new Set());
+                        }
+                        buttonTouchMap.get(newButton).add(touch.identifier);
+                        
+                        // 触发判定
+                        handleTouch(buttonIndex);
+                    }
+                }
+            }
+        }, { passive: false });
+        
+        app.view.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            
+            console.log('=== Native TouchEnd ===');
+            console.log('Touch count:', e.touches.length);
+            console.log('Changed touches:', e.changedTouches.length);
+            
+            // 处理结束的触摸点
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const touch = e.changedTouches[i];
+                const button = touchButtonMap.get(touch.identifier);
+                
+                console.log('Touch', touch.identifier, 'ended');
+                
+                if (button) {
+                    console.log('Releasing button for touch', touch.identifier);
+                    
+                    // 从按钮的touch集合中移除
+                    const touches = buttonTouchMap.get(button);
+                    if (touches) {
+                        touches.delete(touch.identifier);
+                        
+                        if (touches.size === 0) {
+                            button.texture = playButtonUpTexture;
+                            buttonTouchMap.delete(button);
+                            console.log('Button released - no more touches');
+                        } else {
+                            console.log('Button still held by', touches.size, 'other touch(es)');
+                        }
+                    }
+                    
+                    touchButtonMap.delete(touch.identifier);
+                }
+            }
+            
+            console.log('Current touches:', touchButtonMap.size);
+            console.log('=========================\n');
+        }, { passive: false });
+        
+        app.view.addEventListener('touchcancel', (e) => {
+            e.preventDefault();
+            
+            // 处理被取消的触摸点
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const touch = e.changedTouches[i];
+                const button = touchButtonMap.get(touch.identifier);
+                
+                if (button) {
+                    const touches = buttonTouchMap.get(button);
+                    if (touches) {
+                        touches.delete(touch.identifier);
+                        if (touches.size === 0) {
+                            button.texture = playButtonUpTexture;
+                            buttonTouchMap.delete(button);
+                        }
+                    }
+                    touchButtonMap.delete(touch.identifier);
+                }
+            }
+        }, { passive: false });
+        
+        // 防止整个文档的默认触摸行为
+        document.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        document.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+        
+        document.addEventListener('gesturestart', (e) => {
+            e.preventDefault(); // 阻止手势开始（如捏合缩放）
+        });
+        
+        document.addEventListener('gesturechange', (e) => {
+            e.preventDefault(); // 阻止手势变化
+        });
+        
+        document.addEventListener('gestureend', (e) => {
+            e.preventDefault(); // 阻止手势结束
+        });
 
         // 创建容器用于放置4x4网格
         const gridContainer = new PIXI.Container();
@@ -709,8 +915,15 @@
         let playButtonUpTexture = null;
         let playButtonDownTexture = null;
         
-        // 多点触摸追踪
-        const activeTouches = new Map(); // pointerId -> { row, col, button }
+        // 每个pointer独立追踪它当前按住的按钮
+        const pointerButtonMap = new Map(); // pointerId -> button
+        
+        // 反向映射：记录每个按钮被哪些pointer按住
+        const buttonPointersMap = new Map(); // button -> Set<pointerId>
+        
+        // 使用原生触摸事件ID作为key
+        const touchButtonMap = new Map(); // touch.identifier -> button
+        const buttonTouchMap = new Map(); // button -> Set<touch.identifier>
         
         // 创建粒子效果
         function spawnParticles(x, y, color = 0xffffff) {
@@ -1098,7 +1311,7 @@
                         button.width = cellSize;
                         button.height = cellSize;
                         
-                        // 添加交互事件
+                        // 添加交互事件（仅用于显示手型光标，不处理事件）
                         button.interactive = true;
                         button.buttonMode = true;
                         button.cursor = 'pointer';
@@ -1106,48 +1319,8 @@
                         button._row = row; // 存储行号
                         button._col = col; // 存储列号
                         
-                        // 按下事件
-                        button.on('pointerdown', (event) => {
-                            const pointerId = event.data.identifier || 0;
-                            button.texture = playButtonDownTexture;
-                            
-                            // 记录触摸点
-                            activeTouches.set(pointerId, { row, col, button });
-                            
-                            // 获取实际触摸位置
-                            const localPos = event.data.getLocalPosition(gridContainer);
-                            // spawnParticles(localPos.x, localPos.y, 0xffd700);
-                            
-                            // 如果未播放且点击的是有START HERE提示的格子，自动开始播放
-                            if (!isPlaying && audioBuffer) {
-                                const hasStartHere = startHereTexts.some(hint => hint.cellIndex === cellIndex);
-                                if (hasStartHere) {
-                                    // 尝试进入全屏模式
-                                    enterFullscreen();
-                                    
-                                    // 如果AudioContext被挂起，先恢复
-                                    if (audioContext && audioContext.state === 'suspended') {
-                                        audioContext.resume();
-                                    }
-                                    playAudio();
-                                }
-                            }
-                            
-                            // 触发判定逻辑
-                            handleTouch(cellIndex);
-                        });
-                        
-                        // 释放事件
-                        button.on('pointerup', (event) => {
-                            const pointerId = event.data.identifier || 0;
-                            button.texture = playButtonUpTexture;
-                            activeTouches.delete(pointerId);
-                        });
-                        button.on('pointerupoutside', (event) => {
-                            const pointerId = event.data.identifier || 0;
-                            button.texture = playButtonUpTexture;
-                            activeTouches.delete(pointerId);
-                        });
+                        // 注意：不使用 PixiJS 的 pointer 事件，改用原生 touch 事件
+                        // 原生 touch 事件在 app.view 上统一处理，能正确识别多点触控
                         
                         // 触摸离开按钮区域时不恢复状态，保持按下态直到pointerup
                         
@@ -1159,41 +1332,9 @@
                 }
             }
             
-            // 为整个gridContainer添加全局触摸移动事件
-            gridContainer.interactive = true;
-            gridContainer.on('pointermove', (event) => {
-                const pointerId = event.data.identifier || 0;
-                const localPos = event.data.getLocalPosition(gridContainer);
-                
-                // 计算当前触摸点在哪个格子
-                const col = Math.floor(localPos.x / cellSize);
-                const row = Math.floor(localPos.y / cellSize);
-                
-                // 检查是否在有效范围内
-                if (col < 0 || col >= gridSize || row < 0 || row >= gridSize) return;
-                
-                const currentCellIndex = row * gridSize + col;
-                const touchInfo = activeTouches.get(pointerId);
-                
-                // 如果是新的格子，切换按钮状态
-                if (touchInfo && (touchInfo.row !== row || touchInfo.col !== col)) {
-                    // 不要恢复旧按钮状态！让旧按钮保持按下状态以支持多点触控
-                    
-                    // 设置新按钮状态
-                    const newButton = playButtons[currentCellIndex];
-                    if (newButton) {
-                        newButton.texture = playButtonDownTexture;
-                        
-                        // 更新触摸追踪
-                        activeTouches.set(pointerId, { row, col, button: newButton });
-                        
-                        // spawnParticles(localPos.x, localPos.y, 0xffd700);
-                        
-                        // 触发判定逻辑
-                        handleTouch(currentCellIndex);
-                    }
-                }
-            });
+            // 注意：不使用 PixiJS 的 pointer 事件，改用原生 touch 事件
+            // 原生 touch 事件在 app.view 上统一处理，能正确识别多点触控
+            // gridContainer 不需要设置 interactive
             
             // 确保play_button在所有note之上（但不包括粒子容器）
             const maxIndex = gridContainer.children.length - 1; // particleContainer的索引
