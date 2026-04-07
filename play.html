@@ -694,6 +694,188 @@
         document.addEventListener('gestureend', (e) => {
             e.preventDefault(); // 阻止手势结束
         });
+        
+        // 键盘事件处理
+        const keyToButtonMap = {
+            'Digit4': 0, 'Digit5': 1, 'Digit6': 2, 'Digit7': 3,  // 第一排
+            'KeyR': 4, 'KeyT': 5, 'KeyY': 6, 'KeyU': 7,  // 第二排
+            'KeyF': 8, 'KeyG': 9, 'KeyH': 10, 'KeyJ': 11, // 第三排
+            'KeyV': 12, 'KeyB': 13, 'KeyN': 14, 'KeyM': 15,
+            'Digit8': 3,  // 8键同7键
+            'KeyC': 12     // c键同v键
+        };
+        
+        // 跟踪按下的键
+        const pressedKeys = new Set();
+        
+        document.addEventListener('keydown', (e) => {
+            // 防止重复触发
+            if (pressedKeys.has(e.code)) return;
+            pressedKeys.add(e.code);
+            
+            const buttonIndex = keyToButtonMap[e.code];
+            if (buttonIndex !== undefined && playButtons[buttonIndex]) {
+                // 按下按钮
+                playButtons[buttonIndex].texture = playButtonDownTexture;
+                // 只有游戏进行中才触发判定
+                if (isPlaying && audioContext) {
+                    handleTouch(buttonIndex);
+                }
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            pressedKeys.delete(e.code);
+            
+            const buttonIndex = keyToButtonMap[e.code];
+            if (buttonIndex !== undefined && playButtons[buttonIndex]) {
+                // 检查是否还有其他键映射到同一个按钮
+                let stillPressed = false;
+                for (const [key, btnIdx] of Object.entries(keyToButtonMap)) {
+                    if (btnIdx === buttonIndex && pressedKeys.has(key)) {
+                        stillPressed = true;
+                        break;
+                    }
+                }
+                
+                // 只有当没有其他键按下且鼠标也没有按住这个按钮时，才恢复纹理
+                const isMouseHolding = currentMouseButton === playButtons[buttonIndex];
+                if (!stillPressed && !isMouseHolding) {
+                    playButtons[buttonIndex].texture = playButtonUpTexture;
+                }
+            }
+        });
+        
+        // 鼠标事件处理
+        let mousePressed = false;
+        let currentMouseButton = null; // 当前鼠标按住的按钮
+        
+        app.view.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            mousePressed = true;
+            
+            const rect = app.view.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const col = Math.floor(x / cellSize);
+            const row = Math.floor(y / cellSize);
+            
+            if (col >= 0 && col < gridSize && row >= 0 && row < gridSize) {
+                const buttonIndex = row * gridSize + col;
+                const button = playButtons[buttonIndex];
+                
+                if (button) {
+                    button.texture = playButtonDownTexture;
+                    currentMouseButton = button;
+                    // 只有游戏进行中才触发判定
+                    if (isPlaying && audioContext) {
+                        handleTouch(buttonIndex);
+                    }
+                }
+            }
+        });
+        
+        app.view.addEventListener('mousemove', (e) => {
+            if (!mousePressed) return;
+            e.preventDefault();
+            
+            const rect = app.view.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const col = Math.floor(x / cellSize);
+            const row = Math.floor(y / cellSize);
+            
+            if (col >= 0 && col < gridSize && row >= 0 && row < gridSize) {
+                const buttonIndex = row * gridSize + col;
+                const newButton = playButtons[buttonIndex];
+                
+                // 如果移动到了新按钮
+                if (newButton && newButton !== currentMouseButton) {
+                    // 释放旧按钮（仅当没有键盘按住时）
+                    if (currentMouseButton) {
+                        const oldButtonIndex = playButtons.indexOf(currentMouseButton);
+                        let keyboardHoldingOld = false;
+                        for (const [key, btnIdx] of Object.entries(keyToButtonMap)) {
+                            if (btnIdx === oldButtonIndex && pressedKeys.has(key)) {
+                                keyboardHoldingOld = true;
+                                break;
+                            }
+                        }
+                        if (!keyboardHoldingOld) {
+                            currentMouseButton.texture = playButtonUpTexture;
+                        }
+                    }
+                    
+                    // 按下新按钮
+                    newButton.texture = playButtonDownTexture;
+                    currentMouseButton = newButton;
+                    
+                    // 只有游戏进行中才触发判定
+                    if (isPlaying && audioContext) {
+                        handleTouch(buttonIndex);
+                    }
+                }
+            } else {
+                // 移出网格区域，释放按钮（仅当没有键盘按住时）
+                if (currentMouseButton) {
+                    const oldButtonIndex = playButtons.indexOf(currentMouseButton);
+                    let keyboardHoldingOld = false;
+                    for (const [key, btnIdx] of Object.entries(keyToButtonMap)) {
+                        if (btnIdx === oldButtonIndex && pressedKeys.has(key)) {
+                            keyboardHoldingOld = true;
+                            break;
+                        }
+                    }
+                    if (!keyboardHoldingOld) {
+                        currentMouseButton.texture = playButtonUpTexture;
+                    }
+                    currentMouseButton = null;
+                }
+            }
+        });
+        
+        app.view.addEventListener('mouseup', (e) => {
+            e.preventDefault();
+            mousePressed = false;
+            
+            if (currentMouseButton) {
+                // 检查是否有键盘按住这个按钮
+                const buttonIndex = playButtons.indexOf(currentMouseButton);
+                let keyboardHolding = false;
+                for (const [key, btnIdx] of Object.entries(keyToButtonMap)) {
+                    if (btnIdx === buttonIndex && pressedKeys.has(key)) {
+                        keyboardHolding = true;
+                        break;
+                    }
+                }
+                
+                if (!keyboardHolding) {
+                    currentMouseButton.texture = playButtonUpTexture;
+                }
+                currentMouseButton = null;
+            }
+        });
+        
+        // 鼠标移出画布时释放所有按钮
+        app.view.addEventListener('mouseleave', () => {
+            mousePressed = false;
+            if (currentMouseButton) {
+                // 检查是否有键盘按住这个按钮
+                const buttonIndex = playButtons.indexOf(currentMouseButton);
+                let keyboardHolding = false;
+                for (const [key, btnIdx] of Object.entries(keyToButtonMap)) {
+                    if (btnIdx === buttonIndex && pressedKeys.has(key)) {
+                        keyboardHolding = true;
+                        break;
+                    }
+                }
+                
+                if (!keyboardHolding) {
+                    currentMouseButton.texture = playButtonUpTexture;
+                }
+                currentMouseButton = null;
+            }
+        });
 
         // 创建容器用于放置4x4网格
         const gridContainer = new PIXI.Container();
