@@ -33,6 +33,7 @@
             transform: translateX(-50%);
             width: 100vmin;
             height: 100vmin;
+            z-index: 50; /* 游玩界面置于顶层（高于背景与进度条，低于 HUD） */
         }
         
         canvas {
@@ -50,16 +51,23 @@
             position: fixed;
             top: 25px;
             right: 10px;
-            z-index: 100;
+            z-index: 200; /* HUD 始终在最上层，保证可交互 */
             display: flex;
             gap: 10px;
             align-items: center;
+            max-width: 50vw; /* 限制最大宽度，避免与左侧信息重叠 */
         }
         
         /* 竖屏模式：按钮横向排列 */
         @media (orientation: portrait) {
             .controls {
                 flex-direction: row;
+                flex-wrap: wrap; /* 允许换行 */
+                max-height: 70vh; /* 限制最高高度不超过70% */
+                justify-content: flex-end; /* 右对齐 */
+                align-content: flex-start; /* 内容从顶部开始排列 */
+                padding-right: 5px; /* 添加右侧内边距 */
+                top: 55px; /* 避让顶部进度条 */
             }
         }
         
@@ -85,6 +93,91 @@
             font-size: 24px; /* 增大图标 */
         }
         
+        /* 竖屏模式下的按钮样式优化 */
+        @media (orientation: portrait) {
+            .control-button {
+                width: 40px; /* 竖屏时稍微减小按钮 */
+                height: 40px; /* 竖屏时稍微减小按钮 */
+                font-size: 20px; /* 竖屏时稍微减小图标 */
+            }
+        }
+        
+        /* 小屏幕竖屏模式优化 */
+        @media (orientation: portrait) and (max-height: 700px) {
+            .controls {
+                top: 52px; /* 避让顶部进度条 */
+                right: 5px; /* 减小右侧间距 */
+                gap: 5px; /* 减小按钮间距 */
+            }
+            
+            .control-button {
+                width: 35px; /* 更小屏幕上进一步减小按钮 */
+                height: 35px;
+                font-size: 18px;
+            }
+            
+            .info-container {
+                left: 5px; /* 减小左侧间距 */
+                max-width: 30vw; /* 进一步减小宽度 */
+                top: 52px; /* 避让顶部进度条 */
+            }
+            
+            .song-title {
+                font-size: 16px;
+            }
+            
+            .song-artist {
+                font-size: 12px;
+            }
+            
+            .score-display {
+                font-size: 18px;
+            }
+            
+            .stat-item {
+                font-size: 12px;
+                line-height: 1.4;
+            }
+        }
+        
+        /* 超小屏幕竖屏模式优化 */
+        @media (orientation: portrait) and (max-height: 600px) {
+            .controls {
+                top: 52px;
+                right: 3px;
+                gap: 3px;
+            }
+            
+            .control-button {
+                width: 30px;
+                height: 30px;
+                font-size: 16px;
+            }
+            
+            .info-container {
+                left: 3px;
+                max-width: 28vw;
+                top: 52px;
+            }
+            
+            .song-title {
+                font-size: 14px;
+            }
+            
+            .song-artist {
+                font-size: 11px;
+            }
+            
+            .score-display {
+                font-size: 16px;
+            }
+            
+            .stat-item {
+                font-size: 11px;
+                line-height: 1.3;
+            }
+        }
+        
         .control-button:hover {
             background-color: #c0c624;
         }
@@ -108,7 +201,7 @@
             background: rgba(255, 255, 255, 0.98);
             box-shadow: -5px 0 20px rgba(0,0,0,0.3);
             transition: right 0.3s ease-in-out;
-            z-index: 100;
+            z-index: 200;
             padding: 80px 20px 20px;
             overflow-y: auto;
             display: none;
@@ -117,6 +210,31 @@
         .settings-panel.open {
             display: block;
             right: 0;
+        }
+        
+        /* 竖屏模式下设置面板优化 */
+        @media (orientation: portrait) {
+            .settings-panel {
+                width: 280px; /* 竖屏时减小宽度 */
+                padding: 70px 15px 15px; /* 调整内边距 */
+            }
+        }
+        
+        /* 小屏幕竖屏模式下设置面板优化 */
+        @media (orientation: portrait) and (max-height: 700px) {
+            .settings-panel {
+                width: 250px; /* 更小屏幕上进一步减小宽度 */
+                padding: 60px 10px 10px; /* 进一步调整内边距 */
+            }
+            
+            .settings-title {
+                font-size: 1.3em; /* 减小标题字体 */
+                margin-bottom: 15px;
+            }
+            
+            .setting-item {
+                margin-bottom: 15px; /* 减小间距 */
+            }
         }
         
         .settings-title {
@@ -230,10 +348,36 @@
             position: fixed;
             top: 25px;
             left: 10px;
-            z-index: 100;
+            z-index: 200; /* HUD 始终在最上层，保证可交互 */
             color: white;
             font-family: Arial, sans-serif;
             max-width: 40vw;
+        }
+        
+        /* 竖屏模式下的信息容器优化 */
+        @media (orientation: portrait) {
+            .info-container {
+                max-width: 35vw; /* 竖屏时减小宽度，避免与右侧按钮重叠 */
+                font-size: 0.9em; /* 稍微减小字体 */
+                top: 55px; /* 避让顶部进度条 */
+            }
+            
+            .song-title {
+                font-size: 18px; /* 竖屏时减小标题字体 */
+            }
+            
+            .song-artist {
+                font-size: 14px; /* 竖屏时减小艺术家字体 */
+            }
+            
+            .score-display {
+                font-size: 20px; /* 竖屏时减小分数显示字体 */
+            }
+            
+            .stat-item {
+                font-size: 14px; /* 竖屏时减小统计项字体 */
+                line-height: 1.6; /* 调整行高 */
+            }
         }
         
         .song-title {
@@ -279,19 +423,19 @@
         /* 进度条样式 */
         .progress-container {
             position: fixed;
-            z-index: 100;
+            z-index: 40; /* 低于游玩画布，使其不遮挡游玩界面 */
             display: flex;
             align-items: center;
         }
         
-        /* 竖屏模式：进度条在顶部横向显示 */
+        /* 竖屏模式：进度条在底部横向显示，标记在其下方独立泳道（不重合） */
         @media (orientation: portrait) {
             .progress-container {
-                top: 0; /* 页面最顶端 */
+                top: 0; /* 页面最顶端（顶部空白区，避让底部游玩区） */
+                bottom: auto;
                 left: 0;
                 width: 100vw;
-                height: 12px; /* 增加高度 */
-                flex-direction: row;
+                flex-direction: column; /* 先进度条，再标记泳道 */
             }
             
             .progress-bar-wrapper {
@@ -309,25 +453,23 @@
                 transition: width 0.1s linear;
             }
             
-            /* 判定标记点容器 */
+            /* 判定标记泳道：位于进度条下方，不与进度条重合 */
             .judgment-marks {
-                position: absolute;
-                top: 0;
-                left: 0;
+                position: relative;
                 width: 100%;
-                height: 100%;
+                height: 34px;
                 pointer-events: none;
+                overflow: visible;
             }
             
-            /* 判定标记点 */
+            /* 判定标记点（带边框小方块） */
             .judgment-mark {
                 position: absolute;
-                top: 50%;
                 transform: translate(-50%, -50%);
-                width: 6px;
-                height: 6px;
-                border-radius: 50%;
-                opacity: 0.8;
+                width: 7px;
+                height: 7px;
+                border: 1px solid rgba(0, 0, 0, 0.7);
+                opacity: 0.9;
             }
             
             .mark-miss,
@@ -342,16 +484,25 @@
             .mark-great {
                 background-color: #00BFFF; /* 蓝色 */
             }
+
+            .mark-perfect {
+                background-color: #FFD700; /* 金色 */
+                display: none; /* 隐藏 perfect 指示器 */
+            }
+
+            .mark-pending {
+                background-color: rgba(255, 255, 255, 0.25); /* 未击打：暗淡占位 */
+            }
         }
         
-        /* 横屏模式：进度条在左侧竖向显示 */
+        /* 横屏模式：进度条在左侧竖向显示，标记在其右侧独立泳道（不重合） */
         @media (orientation: landscape) {
             .progress-container {
                 top: 0; /* 页面最顶端 */
                 left: 0; /* 页面最左端 */
-                width: 12px; /* 增加宽度 */
+                width: auto;
                 height: 100vh; /* 占满整个高度 */
-                flex-direction: column;
+                flex-direction: row; /* 先进度条，再标记泳道（向右） */
             }
             
             .progress-bar-wrapper {
@@ -371,25 +522,23 @@
                 transition: height 0.1s linear;
             }
             
-            /* 判定标记点容器 */
+            /* 判定标记泳道：位于进度条右侧，不与进度条重合 */
             .judgment-marks {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
+                position: relative;
                 height: 100%;
+                width: 34px;
                 pointer-events: none;
+                overflow: visible;
             }
             
-            /* 判定标记点 */
+            /* 判定标记点（带边框小方块） */
             .judgment-mark {
                 position: absolute;
-                left: 50%;
                 transform: translate(-50%, -50%);
-                width: 6px;
-                height: 6px;
-                border-radius: 50%;
-                opacity: 0.8;
+                width: 7px;
+                height: 7px;
+                border: 1px solid rgba(0, 0, 0, 0.7);
+                opacity: 0.9;
             }
             
             .mark-miss,
@@ -403,6 +552,15 @@
             
             .mark-great {
                 background-color: #00BFFF; /* 蓝色 */
+            }
+
+            .mark-perfect {
+                background-color: #FFD700; /* 金色 */
+                display: none; /* 隐藏 perfect 指示器 */
+            }
+
+            .mark-pending {
+                background-color: rgba(255, 255, 255, 0.25); /* 未击打：暗淡占位 */
             }
         }
     </style>
@@ -471,8 +629,8 @@
     <div class="progress-container" id="progressContainer" style="display: none;">
         <div class="progress-bar-wrapper" id="progressBarWrapper">
             <div class="progress-bar-fill" id="progressBarFill"></div>
-            <div class="judgment-marks" id="judgmentMarks"></div>
         </div>
+        <div class="judgment-marks" id="judgmentMarks"></div>
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
@@ -897,6 +1055,7 @@
         let touchGreatPath;
         let touchGoodPath;
         let touchPoorPath;
+        let atlasPath;
         const totalFrames = 25;
         const touchPerfectFrames = 15;
         
@@ -1049,6 +1208,7 @@
             touchGreatPath = `./markers/${selectedMarker}/touch_great/`;
             touchGoodPath = `./markers/${selectedMarker}/touch_good/`;
             touchPoorPath = `./markers/${selectedMarker}/touch_poor/`;
+            atlasPath = `./markers/${selectedMarker}/atlas.json`;
         }
         
         // Note对象数组，每个格子一个
@@ -1085,7 +1245,10 @@
         const playButtons = [];
 
         // 资源加载状态
-        let resourcesLoaded = false;
+        let resourcesLoaded = false;   // 游戏所需核心资源就绪
+        let markerSheet = null;        // 当前 marker 的精灵图（PIXI.Spritesheet）
+        let markerSheets = {};         // 各 marker 图集缓存（热切换时复用，避免重复下载）
+        let isHotSwapping = false;     // 防止热切换并发
         const loadingProgress = { total: 0, loaded: 0 };
         
         // 粒子系统
@@ -1247,113 +1410,168 @@
             albumCoverSprite.y = screenHeight / 2;
         }
         
-        // 预加载所有资源
-        async function preloadAllResources() {
-            console.log('开始预加载资源...');
+        // 更新加载进度（按已完成的资源数计算，是真实进度）
+        function updateLoadingPercent() {
+            const el = document.getElementById('loadingPercent');
+            if (!el || loadingProgress.total === 0) return;
+            const percent = Math.min(100, Math.round(loadingProgress.loaded / loadingProgress.total * 100));
+            el.textContent = `${percent}% (${loadingProgress.loaded}/${loadingProgress.total})`;
+        }
+        
+        // 并发加载一批资源，每完成一张就更新一次进度
+        // concurrency 限制并发数，避免一次性发出上百个请求导致排队
+        async function loadResources(resources, options = {}) {
+            const { concurrency = 8, silent = false } = options;
+            if (resources.length === 0) return;
             
-            const resourcesToLoad = [];
-            
-            // 1. 加载play_button图片
-            resourcesToLoad.push(
-                { alias: 'playButtonUp', src: './markers/play_button.png' },
-                { alias: 'playButtonDown', src: './markers/play_button_down.png' }
-            );
-            
-            // 2. 加载marker基础动画帧 (25帧)
-            for (let frame = 1; frame <= totalFrames; frame++) {
-                const frameNumber = String(frame).padStart(4, '0');
-                resourcesToLoad.push({
-                    alias: `markerBase${frame}`,
-                    src: `${markerBasePath}base${frameNumber}.png`
-                });
+            if (!silent) {
+                loadingProgress.total += resources.length;
+                updateLoadingPercent();
             }
             
-            // 3. 加载touch_perfect动画帧 (15帧)
-            for (let frame = 1; frame <= touchPerfectFrames; frame++) {
-                const frameNumber = String(frame).padStart(4, '0');
-                resourcesToLoad.push({
-                    alias: `touchPerfect${frame}`,
-                    src: `${touchPerfectPath}perfect${frameNumber}.png`
-                });
-            }
-            
-            // 4. 加载touch_great动画帧 (15帧)
-            for (let frame = 1; frame <= 15; frame++) {
-                const frameNumber = String(frame).padStart(4, '0');
-                resourcesToLoad.push({
-                    alias: `touchGreat${frame}`,
-                    src: `${touchGreatPath}great${frameNumber}.png`
-                });
-            }
-            
-            // 5. 加载touch_good动画帧 (15帧)
-            for (let frame = 1; frame <= 15; frame++) {
-                const frameNumber = String(frame).padStart(4, '0');
-                resourcesToLoad.push({
-                    alias: `touchGood${frame}`,
-                    src: `${touchGoodPath}good${frameNumber}.png`
-                });
-            }
-            
-            // 6. 加载touch_poor动画帧 (15帧)
-            for (let frame = 1; frame <= 15; frame++) {
-                const frameNumber = String(frame).padStart(4, '0');
-                resourcesToLoad.push({
-                    alias: `touchPoor${frame}`,
-                    src: `${touchPoorPath}poor${frameNumber}.png`
-                });
-            }
-            
-            loadingProgress.total = resourcesToLoad.length;
-            loadingProgress.loaded = 0;
-            
-            // 使用PIXI.Assets批量加载
-            try {
-                // 创建加载进度回调
-                const loadProgress = (progress) => {
-                    loadingProgress.loaded = Math.round(progress * loadingProgress.total);
-                    const percent = Math.round(progress * 100);
-                    console.log(`资源加载进度: ${percent}% (${loadingProgress.loaded}/${loadingProgress.total})`);
-                    
-                    // 更新UI显示
-                    const loadingPercent = document.getElementById('loadingPercent');
-                    if (loadingPercent) {
-                        loadingPercent.textContent = `${percent}%`;
+            let cursor = 0;
+            const worker = async () => {
+                while (cursor < resources.length) {
+                    const resource = resources[cursor++];
+                    try {
+                        await PIXI.Assets.load({ alias: resource.alias, src: resource.src });
+                    } catch (e) {
+                        console.warn(`资源加载失败: ${resource.src}`, e);
                     }
-                };
-                
-                // 添加所有资源到Assets
-                const loadPromises = resourcesToLoad.map(resource => 
-                    PIXI.Assets.load({ alias: resource.alias, src: resource.src })
+                    if (!silent) {
+                        loadingProgress.loaded++;
+                        updateLoadingPercent();
+                    }
+                }
+            };
+            
+            const workerCount = Math.min(concurrency, resources.length);
+            await Promise.all(Array.from({ length: workerCount }, worker));
+        }
+        
+        // 预加载核心资源：整张精灵图（含全部 85 帧动画）一次请求完成，替代原先 85 个独立 PNG 请求
+        async function preloadAllResources() {
+            console.log('开始预加载核心资源（精灵图）...');
+            loadingProgress.total = 0;
+            loadingProgress.loaded = 0;
+
+            const setPct = (p) => {
+                const el = document.getElementById('loadingPercent');
+                if (el) el.textContent = `${Math.min(100, Math.round(p * 100))}%`;
+            };
+            setPct(0);
+
+            try {
+                // 1. 加载整张精灵图（包含 base 25 帧 + 判定特效 60 帧）
+                //    PIXI.Assets.load 的第二个回调按已下载字节给出真实网络进度
+                const sheet = await PIXI.Assets.load(
+                    { alias: `markerSheet_${selectedMarker}`, src: atlasPath },
+                    (progress) => setPct(progress.progress)
                 );
-                
-                // 等待所有资源加载完成
-                await Promise.all(loadPromises);
-                
-                console.log('所有资源加载完成!');
-                
-                // 加载专辑封面
+                markerSheet = (sheet && sheet.textures) ? sheet : PIXI.Assets.get(`markerSheet_${selectedMarker}`);
+                markerSheets[selectedMarker] = markerSheet;
+
+                // 2. 加载共享的 play_button 图片（每个 marker 共用，不放进 atlas）
+                await loadResources([
+                    { alias: 'playButtonUp', src: './markers/play_button.png' },
+                    { alias: 'playButtonDown', src: './markers/play_button_down.png' }
+                ]);
+
+                // 3. 加载专辑封面
                 await loadAlbumCover();
-                
-                // 获取play_button纹理
+
                 playButtonUpTexture = PIXI.Assets.get('playButtonUp');
                 playButtonDownTexture = PIXI.Assets.get('playButtonDown');
-                
+
                 resourcesLoaded = true;
-                
+                setPct(1);
+                console.log('核心资源加载完成，可以开始游戏');
             } catch (error) {
-                console.error('资源加载失败:', error);
+                console.error('核心资源加载失败:', error);
                 throw error;
             }
         }
-        
-        // 从缓存中获取纹理
+
+        // 从精灵图（或全局缓存）中获取纹理
         function getTextureFromCache(name) {
             try {
+                if (markerSheet && markerSheet.textures && markerSheet.textures[name]) {
+                    return markerSheet.textures[name];
+                }
                 return PIXI.Assets.get(name);
             } catch (e) {
                 console.warn(`无法获取纹理: ${name}`);
                 return null;
+            }
+        }
+
+        // 获取（必要时加载）某个 marker 的精灵图，按 marker 名缓存复用
+        async function getMarkerSheet(marker) {
+            if (markerSheets[marker]) return markerSheets[marker];
+            const path = `./markers/${marker}/atlas.json`;
+            const sheet = await PIXI.Assets.load({ alias: `markerSheet_${marker}`, src: path });
+            const s = (sheet && sheet.textures) ? sheet : PIXI.Assets.get(`markerSheet_${marker}`);
+            if (s && s.textures) markerSheets[marker] = s;
+            return s;
+        }
+
+        // 从当前 markerSheet 构建指定前缀的纹理数组
+        function buildTextureArray(prefix, count) {
+            const arr = [];
+            for (let f = 1; f <= count; f++) {
+                const t = markerSheet.textures[`${prefix}${f}`];
+                if (t) arr.push(t);
+            }
+            return arr;
+        }
+
+        // 热切换 marker：运行时直接替换所有 note 的动画纹理，无需重玩/刷新
+        async function hotSwapMarker(newMarker) {
+            if (isHotSwapping) return; // 防止并发切换
+            isHotSwapping = true;
+            try {
+                const sheet = await getMarkerSheet(newMarker);
+                if (!sheet || !sheet.textures) {
+                    console.warn('热加载 marker 失败:', newMarker);
+                    return;
+                }
+                // 后续 getTextureFromCache 走新图集
+                markerSheet = sheet;
+
+                notes.forEach(note => {
+                    // 替换 base 动画纹理，保持当前帧位置
+                    const anim = note.animation;
+                    if (anim) {
+                        const saved = anim.currentFrame || 0;
+                        const arr = buildTextureArray('markerBase', totalFrames);
+                        if (arr.length) {
+                            anim.textures = arr;
+                            anim.gotoAndStop(Math.min(saved, arr.length - 1));
+                        }
+                    }
+                    // 替换初始化时预建的 perfect 动画纹理
+                    const pa = note.touchPerfectAnimation;
+                    if (pa) {
+                        const saved = pa.currentFrame || 0;
+                        const arr = buildTextureArray('touchPerfect', 15);
+                        if (arr.length) {
+                            pa.textures = arr;
+                            pa.gotoAndStop(Math.min(saved, arr.length - 1));
+                        }
+                    }
+                    // 运行中创建的判定动画：销毁，下次判定自动用新纹理重建
+                    if (note.touchAnimation) {
+                        const ta = note.touchAnimation;
+                        if (ta.parent) ta.parent.removeChild(ta);
+                        ta.destroy();
+                        note.touchAnimation = null;
+                    }
+                });
+                console.log('marker 热加载完成:', newMarker);
+            } catch (e) {
+                console.error('marker 热加载失败:', e);
+            } finally {
+                isHotSwapping = false;
             }
         }
         
@@ -2033,6 +2251,8 @@
             
             // 初始化所有格子的note
             initNotes();
+            // 谱面解析完成，尝试预建进度条占位方块（需等与音频都就绪）
+            tryBuildNoteMarkers();
         }
         
         // 初始化所有格子的note对象
@@ -2346,10 +2566,8 @@
                     stats[judgment]++;
                 }
                 
-                // 添加判定标记到进度条（只标记Miss/Poor/Good/Great）
-                if (judgment !== 'perfect') {
-                    addJudgmentMark(judgment, closestNote.time);
-                }
+                // 进度条标记：命中后变色（perfect 也显示）
+                updateNoteMarker(judgment, closestNote.cellIndex, closestNote.time);
                 
                 // 更新显示
                 updateStatsDisplay();
@@ -2388,6 +2606,11 @@
             
             // 如果动画对象不存在，使用预加载的纹理创建它
             if (!note.touchAnimation) {
+                // 整张精灵图加载完才有全部帧，未就绪时跳过本次特效
+                if (!markerSheet || !markerSheet.textures) {
+                    return;
+                }
+                
                 const touchTextures = [];
                 for (let frame = 1; frame <= 15; frame++) {
                     const textureName = `${texturePrefix}${frame}`;
@@ -2397,8 +2620,8 @@
                     }
                 }
                 
-                if (touchTextures.length === 0) {
-                    console.warn(`无法找到${judgment}判定的纹理`);
+                if (touchTextures.length < 15) {
+                    console.warn(`${judgment}判定纹理不完整(${touchTextures.length}/15)，跳过特效`);
                     return;
                 }
                 
@@ -2430,6 +2653,9 @@
                     gridContainer.setChildIndex(note.touchAnimation, buttonChildIndex - 1);
                 }
             }
+            // 立即隐藏并停止base动画，防止与判定动画重叠
+            note.animation.visible = false;
+            note.animation.stop();
             
             // 设置位置和大小（占满整个格子）
             note.touchAnimation.x = note.col * cellSize;
@@ -2437,9 +2663,7 @@
             note.touchAnimation.width = cellSize;
             note.touchAnimation.height = cellSize;
             
-            // 立即隐藏并停止base动画，防止与判定动画重叠
-            note.animation.visible = false;
-            note.animation.stop();
+
             
             // 重置并播放判定动画
             note.touchAnimation.gotoAndStop(0);
@@ -2473,6 +2697,11 @@
                         const timeDiff = currentTimeMs - adjustedNoteTime;
                         const noteKey = `${noteData.cellIndex}_${noteData.time}`;
                         
+                        // 已判定的 note：不再绘制基础动画（由击打特效负责显示，特效结束后即移除）
+                        if (judgedNotes.has(noteKey)) {
+                            continue;
+                        }
+                        
                         // 检查是否已经错过（超过显示范围且未被判定）
                         if (timeDiff >= postDisplayTime && !judgedNotes.has(noteKey)) {
                             // Miss：note已经超过显示范围但未被判定
@@ -2480,8 +2709,8 @@
                             stats.miss++;
                             combo = 0; // Miss打断combo
                             
-                            // 添加Miss标记到进度条
-                            addJudgmentMark('miss', noteData.time);
+                            // 进度条标记：Miss 变色
+                            updateNoteMarker('miss', noteData.cellIndex, noteData.time);
                             
                             updateStatsDisplay();
                             updateComboDisplay();
@@ -2544,6 +2773,7 @@
                 const arrayBuffer = await response.arrayBuffer();
                 audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
                 console.log('音频加载成功');
+                tryBuildNoteMarkers(); // 音频就绪，尝试预建进度条占位方块
                 
                 // 加载clap音效
                 await loadClapSound();
@@ -2704,10 +2934,52 @@
             }
         }
         
-        // 重玩功能
+        // 重玩功能（热重启：原地重新开始，不刷新页面）
         function replay() {
-            // 直接刷新页面
-            window.location.reload();
+            // 1. 停止当前音频并复位播放状态
+            stopAndDestroyAudioSource();
+            isPlaying = false;
+            pauseTime = 0;
+            // 清除已判定记录，否则这些 note 不会再出现/不会再被判定
+            judgedNotes.clear();
+            isGameEnded = false;
+            
+            // 2. 复位统计、判定标记与结果界面
+            resetStats();            // 重置 combo/score/stats，并清 isGameEnded、隐藏 Combo 文本
+            clearJudgmentMarks();    // 清除进度条上的判定标记
+            hideResult();            // 隐藏结果界面（若已显示）
+            
+            // 3. 复位每个 note 的动画与状态
+            notes.forEach(note => {
+                note.currentFrame = 0;
+                note.isActive = false;
+                note.isTouching = false;
+                if (note.animation) {
+                    note.animation.visible = false;
+                    note.animation.gotoAndStop(0);
+                }
+                if (note.touchPerfectAnimation) {
+                    note.touchPerfectAnimation.visible = false;
+                    note.touchPerfectAnimation.gotoAndStop(0);
+                }
+                // 运行中创建的判定动画：销毁并置空，下次判定用新纹理重建
+                if (note.touchAnimation) {
+                    if (note.touchAnimation.parent) note.touchAnimation.parent.removeChild(note.touchAnimation);
+                    note.touchAnimation.destroy();
+                    note.touchAnimation = null;
+                }
+            });
+            
+            // 4. 复位进度条与显示
+            if (progressBarFill) progressBarFill.style.width = '0%';
+            updateComboDisplay();
+            updateStatsDisplay();
+            
+            // 5. 恢复 AudioContext（浏览器可能处于 suspended），从头播放
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            playAudio();
         }
         
         // 绑定播放按钮事件
@@ -2858,15 +3130,16 @@
             // Marker选择器事件
             if (markerSelect) {
                 markerSelect.addEventListener('change', (e) => {
-                    selectedMarker = e.target.value;
+                    const newMarker = e.target.value;
+                    selectedMarker = newMarker;
                     updateMarkerPreview();
                     updateMarkerPaths();
                     // 保存到localStorage
-                    localStorage.setItem('selectedMarker', selectedMarker);
-                    console.log(`Marker已更改为: ${selectedMarker}`);
+                    localStorage.setItem('selectedMarker', newMarker);
+                    console.log(`Marker已更改为: ${newMarker}`);
                     
-                    // 提示用户需要重新加载资源
-                    alert('Marker已更改，请点击重玩按钮重新加载资源以应用更改。');
+                    // 运行时热加载，直接替换动画纹理，无需重玩/刷新
+                    hotSwapMarker(newMarker);
                 });
             }
             
@@ -3147,7 +3420,7 @@
                 // 首先加载manifest.txt获取歌曲信息
                 await loadManifest();
                 
-                // 预加载所有资源
+                // 预加载核心资源（base帧 + 按钮 + 封面）
                 await preloadAllResources();
                 
                 // 移除加载提示
@@ -3155,7 +3428,7 @@
                     loadingDiv.parentNode.removeChild(loadingDiv);
                 }
                 
-                console.log('资源加载完成，开始初始化游戏...');
+                console.log('核心资源加载完成，开始初始化游戏...');
                 
                 // 初始化音频
                 initAudio();
@@ -3184,70 +3457,95 @@
         // 立即显示进度条（在加载完成后）
         domProgressContainer.style.display = 'flex';
         
-        // 添加判定标记到进度条
-        function addJudgmentMark(judgment, noteTime) {
-            if (!audioBuffer || !judgmentMarksContainer) return;
-            
+        // 进度条标记：预先为谱面每个 note 创建占位方块（暗色 mark-pending），
+        // 命中后通过 updateNoteMarker 变色。同一时间点的 note 沿垂直/水平方向堆叠。
+        const noteMarkers = new Map(); // key: "cellIndex_time" -> 标记元素
+        const MARK_STACK_STEP = 9;     // 堆叠方块之间的像素间隔
+        const LANE_HALF = 17;          // 标记泳道半宽/半高，用于居中堆叠
+
+        // audioBuffer 与 chartData 都就绪时才构建（两者异步加载，谁后到都触发一次）
+        function tryBuildNoteMarkers() {
+            if (audioBuffer && chartData.length) {
+                buildNoteMarkers();
+            }
+        }
+
+        // 预建全部占位方块（暗色，未击打）
+        function buildNoteMarkers() {
+            const container = document.getElementById('judgmentMarks');
+            if (!container) return;
+            container.innerHTML = '';
+            noteMarkers.clear();
+
             const duration = audioBuffer.duration;
-            const progress = noteTime / (duration * 1000); // 转换为秒
-            const clampedProgress = Math.max(0, Math.min(1, progress));
-            
-            const mark = document.createElement('div');
-            mark.className = `judgment-mark mark-${judgment}`;
-            
             const isLandscape = window.innerWidth > window.innerHeight;
-            if (isLandscape) {
-                // 横屏模式：根据高度定位（从下往上）
-                mark.style.bottom = (clampedProgress * 100) + '%';
-            } else {
-                // 竖屏模式：根据宽度定位（从左往右）
-                mark.style.left = (clampedProgress * 100) + '%';
-            }
-            
-            judgmentMarksContainer.appendChild(mark);
-        }
-        
-        // 清除所有判定标记
-        function clearJudgmentMarks() {
-            if (judgmentMarksContainer) {
-                judgmentMarksContainer.innerHTML = '';
-            }
-        }
-        
-        // 清除指定时间之后的判定标记
-        function clearJudgmentMarksAfterTime(timeMs) {
-            if (!judgmentMarksContainer || !audioBuffer) return;
-            
-            const duration = audioBuffer.duration;
-            const timeSeconds = timeMs / 1000;
-            const progressThreshold = timeSeconds / duration;
-            
-            const marks = judgmentMarksContainer.querySelectorAll('.judgment-mark');
-            let removedCount = 0;
-            
-            marks.forEach(mark => {
-                // 获取标记的位置
-                let markProgress;
-                const isLandscape = window.innerWidth > window.innerHeight;
-                
+
+            // 按时间排序，保证同时间点的堆叠顺序稳定
+            const sorted = [...chartData].sort((a, b) => a.time - b.time);
+            const stackTotalByTime = new Map();   // 每个时间点的 note 总数（只看数量）
+            const stackIndexByTime = new Map();   // 当前已处理的序号
+
+            // 第一遍：统计每个时间点的 note 数量
+            sorted.forEach(note => {
+                const t = note.time;
+                stackTotalByTime.set(t, (stackTotalByTime.get(t) || 0) + 1);
+            });
+
+            sorted.forEach(note => {
+                const progress = note.time / (duration * 1000);
+                const clampedProgress = Math.max(0, Math.min(1, progress));
+                const key = `${note.cellIndex}_${note.time}`;
+
+                const t = note.time;
+                const stackIndex = stackIndexByTime.get(t) || 0;  // 当前序号（从 0 开始）
+                stackIndexByTime.set(t, stackIndex + 1);
+                const total = stackTotalByTime.get(t);
+
+                const mark = document.createElement('div');
+                mark.className = 'judgment-mark mark-pending';
+
+                // 偏移只由“数量”决定（stackIndex / total），与具体位置精度无关
                 if (isLandscape) {
-                    // 横屏模式：从bottom样式获取
-                    const bottomPercent = parseFloat(mark.style.bottom);
-                    markProgress = bottomPercent / 100;
+                    // 横屏：沿高度(bottom)定位，向右侧(left)泳道堆叠并居中
+                    mark.style.bottom = (clampedProgress * 100) + '%';
+                    mark.style.left = (LANE_HALF + (stackIndex - (total - 1) / 2) * MARK_STACK_STEP) + 'px';
                 } else {
-                    // 竖屏模式：从left样式获取
-                    const leftPercent = parseFloat(mark.style.left);
-                    markProgress = leftPercent / 100;
+                    // 竖屏：沿宽度(left)定位，向下方(top)泳道堆叠并居中（单 note 居中）
+                    mark.style.left = (clampedProgress * 100) + '%';
+                    mark.style.top = (LANE_HALF + (stackIndex - (total - 1) / 2) * MARK_STACK_STEP) + 'px';
                 }
-                
-                // 如果标记位置在目标时间之后，移除它
-                if (markProgress > progressThreshold) {
-                    mark.remove();
-                    removedCount++;
+
+                container.appendChild(mark);
+                noteMarkers.set(key, mark);
+            });
+        }
+
+        // 命中后把对应 note 的标记变为判定颜色
+        function updateNoteMarker(judgment, cellIndex, time) {
+            const mark = noteMarkers.get(`${cellIndex}_${time}`);
+            if (mark) {
+                mark.className = `judgment-mark mark-${judgment}`;
+            }
+        }
+
+        // 清除所有判定标记：重新预建全部占位方块
+        function clearJudgmentMarks() {
+            buildNoteMarkers();
+        }
+
+        // 进度跳转后：把新时间点之后的占位方块重置为未击打（保留已击打的颜色）
+        function clearJudgmentMarksAfterTime(timeMs) {
+            if (!audioBuffer) return;
+            const duration = audioBuffer.duration;
+            const threshold = (timeMs / 1000) / duration;
+
+            noteMarkers.forEach((mark, key) => {
+                const time = parseFloat(key.split('_')[1]);
+                const progress = time / (duration * 1000);
+                if (progress > threshold) {
+                    mark.className = 'judgment-mark mark-pending';
                 }
             });
-            
-            console.log(`清除了${removedCount}个进度${timeMs}ms之后的判定标记`);
         }
         
         // 更新DOM进度条

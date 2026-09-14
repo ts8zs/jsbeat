@@ -1,7 +1,9 @@
 package main
 
 import (
+	"compress/gzip"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"net/http"
@@ -9,7 +11,85 @@ import (
 	"os/exec"
 	"runtime"
 	"strconv"
+	"strings"
+	"sync"
 )
+
+var (
+	gzipPool = sync.Pool{
+		New: func() interface{} {
+			return gzip.NewWriter(io.Discard)
+		},
+	}
+)
+
+// 可压缩的文本类型（图片/音频本身已压缩，再压只会浪费CPU）
+var compressibleExt = map[string]bool{
+	".html": true, ".htm": true, ".css": true, ".js": true, ".mjs": true,
+	".json": true, ".txt": true, ".xml": true, ".svg": true, ".jmt": true,
+}
+
+// gzipResponseWriter 包装 http.ResponseWriter，对文本响应启用 gzip
+type gzipResponseWriter struct {
+	io.Writer
+	http.ResponseWriter
+}
+
+func (g gzipResponseWriter) Write(b []byte) (int, error) {
+	return g.Writer.Write(b)
+}
+
+// cacheControlMiddleware 为静态资源加上缓存头
+// marker 图片基本不变 -> 长缓存；其余文件 -> 交给协商缓存(304)
+func cacheControlMiddleware(root string) http.Handler {
+	fs := http.FileServer(http.Dir(root))
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// 只服务 GET/HEAD
+		if r.Method != http.MethodGet && r.Method != http.MethodHead {
+			fs.ServeHTTP(w, r)
+			return
+		}
+
+		path := strings.ToLower(r.URL.Path)
+		switch {
+		case strings.HasPrefix(path, "/markers/") || strings.HasPrefix(path, "/songs/"):
+			// 7 天强缓存，第二次进入游戏直接命中本地缓存，不再发请求
+			w.Header().Set("Cache-Control", "public, max-age=604800")
+		default:
+			// 页面/谱面：每次校验，未修改返回 304（Go 已自动输出 Last-Modified）
+			w.Header().Set("Cache-Control", "no-cache")
+		}
+
+		if !shouldGzip(r, path) {
+			fs.ServeHTTP(w, r)
+			return
+		}
+
+		w.Header().Set("Content-Encoding", "gzip")
+		// Content-Type 由 FileServer 推断，这里先删掉避免长度/类型错配
+		w.Header().Del("Content-Length")
+
+		gz := gzipPool.Get().(*gzip.Writer)
+		defer gzipPool.Put(gz)
+		gz.Reset(w)
+		defer gz.Close()
+
+		fs.ServeHTTP(gzipResponseWriter{Writer: gz, ResponseWriter: w}, r)
+	})
+}
+
+func shouldGzip(r *http.Request, path string) bool {
+	if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+		return false
+	}
+	for ext := range compressibleExt {
+		if strings.HasSuffix(path, ext) {
+			return true
+		}
+	}
+	return false
+}
 
 // findAvailablePort 查找一个可用的端口
 func findAvailablePort(startPort int) (int, error) {
@@ -87,9 +167,8 @@ func main() {
 		log.Fatalf("Failed to find available port: %v", err)
 	}
 
-	// 创建文件服务器
-	fs := http.FileServer(http.Dir(dir))
-	http.Handle("/", fs)
+	// 创建带缓存头与 gzip 的文件服务器
+	http.Handle("/", cacheControlMiddleware(dir))
 
 	// 获取本机IP地址
 	ip, err := getLocalIP()

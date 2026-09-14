@@ -1,0 +1,1713 @@
+{
+  "frames": {
+    "markerBase1": {
+      "frame": {
+        "h": 160,
+        "w": 159,
+        "x": 0,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 159
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 159,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase10": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 480,
+        "y": 160
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase11": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 640,
+        "y": 160
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase12": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 800,
+        "y": 160
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase13": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 320
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase14": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 160,
+        "y": 320
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase15": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 320,
+        "y": 320
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase16": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 480,
+        "y": 320
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase17": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 640,
+        "y": 320
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase18": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 800,
+        "y": 320
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase19": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 480
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase2": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 159,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase20": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 160,
+        "y": 480
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase21": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 320,
+        "y": 480
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase22": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 480,
+        "y": 480
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase23": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 640,
+        "y": 480
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase24": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 800,
+        "y": 480
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase25": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 640
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase3": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 319,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase4": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 479,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase5": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 639,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase6": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 799,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase7": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 160
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase8": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 160,
+        "y": 160
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "markerBase9": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 320,
+        "y": 160
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGood1": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 160,
+        "y": 1440
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGood10": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 640,
+        "y": 1600
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGood11": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 800,
+        "y": 1600
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGood12": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 1760
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGood13": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 160,
+        "y": 1760
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGood14": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 320,
+        "y": 1760
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGood15": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 480,
+        "y": 1760
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGood2": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 320,
+        "y": 1440
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGood3": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 480,
+        "y": 1440
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGood4": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 640,
+        "y": 1440
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGood5": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 800,
+        "y": 1440
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGood6": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 1600
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGood7": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 160,
+        "y": 1600
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGood8": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 320,
+        "y": 1600
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGood9": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 480,
+        "y": 1600
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGreat1": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 640,
+        "y": 960
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGreat10": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 160,
+        "y": 1280
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGreat11": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 320,
+        "y": 1280
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGreat12": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 480,
+        "y": 1280
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGreat13": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 640,
+        "y": 1280
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGreat14": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 800,
+        "y": 1280
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGreat15": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 1440
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGreat2": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 800,
+        "y": 960
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGreat3": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 1120
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGreat4": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 160,
+        "y": 1120
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGreat5": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 320,
+        "y": 1120
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGreat6": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 480,
+        "y": 1120
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGreat7": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 640,
+        "y": 1120
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGreat8": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 800,
+        "y": 1120
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchGreat9": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 1280
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPerfect1": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 160,
+        "y": 640
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPerfect10": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 640,
+        "y": 800
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPerfect11": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 800,
+        "y": 800
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPerfect12": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 960
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPerfect13": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 160,
+        "y": 960
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPerfect14": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 320,
+        "y": 960
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPerfect15": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 480,
+        "y": 960
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPerfect2": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 320,
+        "y": 640
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPerfect3": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 480,
+        "y": 640
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPerfect4": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 640,
+        "y": 640
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPerfect5": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 800,
+        "y": 640
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPerfect6": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 800
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPerfect7": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 160,
+        "y": 800
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPerfect8": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 320,
+        "y": 800
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPerfect9": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 480,
+        "y": 800
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPoor1": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 640,
+        "y": 1760
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPoor10": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 160,
+        "y": 2080
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPoor11": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 320,
+        "y": 2080
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPoor12": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 480,
+        "y": 2080
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPoor13": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 640,
+        "y": 2080
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPoor14": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 800,
+        "y": 2080
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPoor15": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 2240
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPoor2": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 800,
+        "y": 1760
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPoor3": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 1920
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPoor4": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 160,
+        "y": 1920
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPoor5": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 320,
+        "y": 1920
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPoor6": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 480,
+        "y": 1920
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPoor7": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 640,
+        "y": 1920
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPoor8": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 800,
+        "y": 1920
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "touchPoor9": {
+      "frame": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 2080
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 160
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 160,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    }
+  },
+  "meta": {
+    "format": "RGBA8888",
+    "image": "atlas.png",
+    "scale": "1",
+    "size": {
+      "h": 4096,
+      "w": 1024
+    }
+  }
+}

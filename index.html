@@ -1095,6 +1095,8 @@
             updateMarkerPreview();
             // 保存到localStorage
             localStorage.setItem('selectedMarker', selectedMarker);
+            // 预取新 marker 的图片
+            scheduleMarkerPrefetch();
         });
         
         // 判定延迟设置事件
@@ -1189,6 +1191,38 @@
             previewImg.src = `./markers/${selectedMarker}/preview.png`;
         }
         
+        // 在选歌页空闲时预取当前 marker 的精灵图（atlas）
+        // 这样进入 play.html 时图集已在浏览器 HTTP 缓存里，加载几乎瞬时
+        let prefetchedMarker = null;
+        function prefetchMarkerImages(marker) {
+            if (prefetchedMarker === marker) return;
+            prefetchedMarker = marker;
+            
+            // 整张图集只需 2 个请求，远低于原先 85 个独立 PNG
+            const urls = [
+                `./markers/${marker}/atlas.json`,
+                `./markers/${marker}/atlas.png`
+            ];
+            
+            let cursor = 0;
+            const next = () => {
+                if (cursor >= urls.length) return;
+                const img = new Image();
+                img.onload = img.onerror = next;
+                img.src = urls[cursor++];
+            };
+            for (let i = 0; i < urls.length; i++) next();
+        }
+        
+        function scheduleMarkerPrefetch() {
+            const run = () => prefetchMarkerImages(selectedMarker);
+            if (window.requestIdleCallback) {
+                window.requestIdleCallback(run, { timeout: 2000 });
+            } else {
+                setTimeout(run, 1000);
+            }
+        }
+        
         // 页面加载时初始化
         window.addEventListener('DOMContentLoaded', () => {
             // 从localStorage恢复上次选择的marker
@@ -1210,6 +1244,9 @@
             if (savedSortOrder) {
                 currentSortOrder = savedSortOrder;
             }
+            
+            // 预取当前 marker 的图片，为进入游戏预热缓存
+            scheduleMarkerPrefetch();
             
             // 加载歌曲列表
             loadSongs().then((loadedSongs) => {
